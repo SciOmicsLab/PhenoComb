@@ -40,3 +40,4 @@ vignettes/*.pdf
 
 # Compiled C files
 *.o
+*.so
