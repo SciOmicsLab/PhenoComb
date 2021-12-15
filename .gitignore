@@ -41,3 +41,4 @@ vignettes/*.pdf
 # Compiled C files
 *.o
 *.so
+.DS_Store
