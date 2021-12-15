@@ -13,7 +13,7 @@
 #'
 #' @param phenotype Phenotype name.
 #' @param markers Names of the markers.
-#' @return Numeric vector with wncoded phenotype.
+#' @return Numeric vector with encoded phenotype.
 #'
 #' @examples
 #' phenotype_to_numbers("Marker1-Marker2+Marker3++Marker4-",c("Marker1","Marker2","Marker3","Marker4"))

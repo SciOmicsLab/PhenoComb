@@ -12,7 +12,7 @@ phenotype_to_numbers(phenotype, markers)
 \item{markers}{Names of the markers.}
 }
 \value{
-Numeric vector with wncoded phenotype.
+Numeric vector with encoded phenotype.
 }
 \description{
 \code{phenotype_to_numbers} generates a numeric representation of a human-readable phenotype name
