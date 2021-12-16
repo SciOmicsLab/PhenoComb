@@ -34,7 +34,7 @@ is a unique phenotype.}
 
 \item{parent_phen}{Parent phenotype to filter for. All phenotypes in the output will contain the parent phenotype.}
 
-\item{n_threads}{Number of threads to be used. Default: 1}
+\item{n_threads}{Number of threads to be used. Default: 1.}
 }
 \description{
 \code{compute_statistically_relevant_phenotypes} filters statistically

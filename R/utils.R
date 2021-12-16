@@ -110,3 +110,10 @@ count_csv_lines <- function(csv_file){
   as.numeric(system(paste("cat ",csv_file," | wc -l", collapse = ""), intern = TRUE)) - 1
 }
 
+# Normalize numeric vector
+normalize_vals <- function(x){
+  x <- abs(x)
+  x <- x-min(x)
+  x <- x/max(x)
+  return(x)
+}

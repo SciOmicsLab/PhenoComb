@@ -11,6 +11,7 @@ Imports:
     data.table (>= 1.14.0),
     dplyr (>= 1.0.7),
     flowCore (>= 2.4.0),
+    igraph (>= 1.2.7),
     LaF (>= 0.8.4),
     memuse (>= 4.1),
     parallel (>= 4.1.1),
