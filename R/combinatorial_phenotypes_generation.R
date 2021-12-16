@@ -130,7 +130,7 @@ get_unique_phenotype_counts <- function(processed_cell_data, min_count = 0, effi
 #' @param max_phenotype_length Maximum length of markers to compose a phenotype.
 #' @param efficient If TRUE, filter full-length phenotypes for \code{min_count} condition before generating all marker combinations.
 #' It is less sensitive for very rare phenotypes but yields a great boost in performance.
-#' @param n_threads Number of threads to be used. Default: 1
+#' @param n_threads Number of threads to be used. Default: 1.
 #'  
 #' @return Data.Frame with all possible phenotypes and cell counts for each sample.
 #' 
@@ -434,8 +434,8 @@ find_last_marker_combination_computed <- function(log_file){
 #' to the output file called "combinatorial_phenotype_counts.csv".
 #'
 #' @param cell_file Path to file containing cell data. Must be a ".csv" or ".fcs" file.
-#' @param channel_data Path to a ".csv" file containing columns named: Channel, Marker, T1, [T2, T3, ... , Tn], [OOB].
-#' @param sample_data Path to a ".csv" file containing a Sample_ID column and additional grouping columns for the samples.
+#' @param channel_file Path to a ".csv" file containing columns named: Channel, Marker, T1, [T2, T3, ... , Tn], [OOB].
+#' @param sample_file Path to a ".csv" file containing a Sample_ID column and additional grouping columns for the samples.
 #' @param output_folder Path to folder where outputs and temporary files should be saved.
 #' @param parent_phen Parent phenotype to filter for. All phenotypes generated will contain the parent phenotype.
 #' @param min_count Minimum number of cells that a phenotype must have for at least one sample.
@@ -443,9 +443,11 @@ find_last_marker_combination_computed <- function(log_file){
 #' @param sample_ID_col Name of the column in \code{cell_data} where the Sample IDs are stored. Default: "Sample_ID".
 #' @param save_cell_data If TRUE, processed cell data is saved to "output_folder/cell_data.csv".
 #' @param continue If TRUE, look for files to resume execution. Also needed to save necessary "continuing" files.
+#' @param max_ram Maximum ram memory in Gb to be used by the function.
 #' @param efficient If TRUE, filter full-length phenotypes for \code{min_count} condition before generating all marker combinations.
 #' It is less sensitive for very rare phenotypes but yields a great boost in performance.
 #' @param n_threads Number of threads to be used. Default: 1.
+#' @param verbose If TRUE, print outputs from log to stdout.
 #'  
 #' @return Output is saved to file.
 #' 
@@ -460,16 +462,16 @@ combinatorial_phenotype_counts_server <- function(cell_file,
                                                   sampleID_col = "Sample_ID",
                                                   save_cell_data = TRUE,
                                                   continue = TRUE,
-                                                  verbose = TRUE,
                                                   max_ram = 0,
                                                   efficient = TRUE,
-                                                  n_threads = 1
+                                                  n_threads = 1,
+                                                  verbose = TRUE
                                                   ){
   
   continued <- FALSE
-  log_file <- "log.txt"
+  log_file <- "combinatorial_phenotypes_log.txt"
   unique_phen_file <- "unique_phen.tmp"
-  cell_data_file <- "cell_data.csv"
+  cell_data_file <- "processed_cell_data.csv"
   phenotype_counts_file <- "combinatorial_phenotype_counts.csv"
   
   
