@@ -26,7 +26,7 @@ Use function \code{process_cell_data} to generate this input.}
 \item{efficient}{If TRUE, filter full-length phenotypes for \code{min_count} condition before generating all marker combinations.
 It is less sensitive for very rare phenotypes but yields a great boost in performance.}
 
-\item{n_threads}{Number of threads to be used. Default: 1}
+\item{n_threads}{Number of threads to be used. Default: 1.}
 }
 \value{
 Data.Frame with all possible phenotypes and cell counts for each sample.

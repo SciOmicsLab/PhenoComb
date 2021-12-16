@@ -15,14 +15,18 @@ combinatorial_phenotype_counts_server(
   sampleID_col = "Sample_ID",
   save_cell_data = TRUE,
   continue = TRUE,
-  verbose = TRUE,
   max_ram = 0,
   efficient = TRUE,
-  n_threads = 1
+  n_threads = 1,
+  verbose = TRUE
 )
 }
 \arguments{
 \item{cell_file}{Path to file containing cell data. Must be a ".csv" or ".fcs" file.}
+
+\item{channel_file}{Path to a ".csv" file containing columns named: Channel, Marker, T1, [T2, T3, ... , Tn], [OOB].}
+
+\item{sample_file}{Path to a ".csv" file containing a Sample_ID column and additional grouping columns for the samples.}
 
 \item{output_folder}{Path to folder where outputs and temporary files should be saved.}
 
@@ -36,14 +40,14 @@ combinatorial_phenotype_counts_server(
 
 \item{continue}{If TRUE, look for files to resume execution. Also needed to save necessary "continuing" files.}
 
+\item{max_ram}{Maximum ram memory in Gb to be used by the function.}
+
 \item{efficient}{If TRUE, filter full-length phenotypes for \code{min_count} condition before generating all marker combinations.
 It is less sensitive for very rare phenotypes but yields a great boost in performance.}
 
 \item{n_threads}{Number of threads to be used. Default: 1.}
 
-\item{channel_data}{Path to a ".csv" file containing columns named: Channel, Marker, T1, [T2, T3, ... , Tn], [OOB].}
-
-\item{sample_data}{Path to a ".csv" file containing a Sample_ID column and additional grouping columns for the samples.}
+\item{verbose}{If TRUE, print outputs from log to stdout.}
 
 \item{sample_ID_col}{Name of the column in \code{cell_data} where the Sample IDs are stored. Default: "Sample_ID".}
 }

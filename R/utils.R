@@ -50,17 +50,7 @@ has_phenotype <- function(phen1, phen2){
   
 }
 
-# Checks if phen1 contains phen2 for data.table inputs
-has_phenotype_data_table <- function(phen1, phen2){
-  
-  phen1 <- as.numeric(phen1)
-  phen2 <- as.numeric(phen2)
-  
-  has_marker <- phen2 > -1
-  
-  return(all(phen1[has_marker] == phen2[has_marker]))
-  
-}
+
 
 #' Find phenotype in data.frame
 #' 
@@ -72,21 +62,9 @@ find_phenotype <- function(phen_table, phen, markers, n_cores = 1){
     phen <- phenotype_to_numbers(phen,markers)  
   }
   
-  # handle data.table input in another function
-  if(data.table::is.data.table(phen_table)) return(find_phenotype_data_table(phen_table, phen, markers,n_cores))
-  
   comparison <- unlist(parallel::mclapply(1:nrow(phen_table), function(i) phenotypes_are_equal(phen_table[i,markers],phen), mc.cores = n_cores))
   
   return(phen_table[comparison,])
-  
-}
-
-# Find phenotype in data.table object (must only be called from find_phenotype)
-find_phenotype_data_table <- function(phen_table, phen, markers,n_cores = 1){
-
-  comparison <- unlist(parallel::mclapply(1:nrow(phen_table), function(i) phenotypes_are_equal(phen_table[i, ..markers, with=FALSE],phen), mc.cores = n_cores))
-  
-  return(phen_table[comparison, ])
   
 }
 
@@ -126,3 +104,9 @@ find_phenotype_in_file <- function(phen_file, phen, markers, n_cores = 1, chunk_
   
   
 }
+
+# Fast line counting on csv files (not considering the header)
+count_csv_lines <- function(csv_file){
+  as.numeric(system(paste("cat ",csv_file," | wc -l", collapse = ""), intern = TRUE)) - 1
+}
+

@@ -14,7 +14,7 @@ NULL
 .onLoad <- function(libname, pkgname){
   op <- options()
   op.phenocomb <- list(
-    PhenoComb.verbose = FALSE,
+    PhenoComb.verbose = TRUE,
     PhenoComb.log.file = NULL
   )
   
