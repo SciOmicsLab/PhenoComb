@@ -315,7 +315,7 @@ combinatorial_phenotype_counts_server <- function(cell_file,
                                                         start_from = last_marker_combination+1,
                                                         max_ram = max_ram,
                                                         efficient = efficient,
-                                                        n_cores = n_cores
+                                                        n_threads = n_threads
             )
             
             print_log("Combinatorial phenotype cell counting done.")
