@@ -399,7 +399,7 @@ combinatorial_phenotype_counts_server <- function(cell_file,
     file.create(file.path(output_folder,phenotype_counts_file), overrite = TRUE)
     
     print_log("Starting cell counting for all combinatorial phenotypes...")
-    memory_safe_combinatorial_phenotype_counts(unique_phen,
+    memory_safe_combinatorial_phenotype_counts2(unique_phen,
                                                nrow(channel_data),
                                                file.path(output_folder,phenotype_counts_file),
                                                parent_phen = parent_phen,
@@ -420,3 +420,179 @@ combinatorial_phenotype_counts_server <- function(cell_file,
   
 }
 
+
+
+
+
+# Compute all combinations of markers in a memory-safe way by
+# splitting all the combinations in chunks and saving the results to a file
+# must be called from "combinatorial_phenotype_counts_server"
+memory_safe_combinatorial_phenotype_counts2 <- function(unique_phenotype_counts,
+                                                       n_markers,
+                                                       dump_file,
+                                                       parent_phen = NULL,
+                                                       max_phenotype_length = 0,
+                                                       min_count = 10,
+                                                       start_from = 1,
+                                                       max_ram = 0,
+                                                       efficient = TRUE,
+                                                       n_threads = 1
+){
+  
+  
+  
+  # Get markers names and sample IDs
+  markers <- head(colnames(unique_phenotype_counts),n_markers)
+  samples_id <- tail(colnames(unique_phenotype_counts),ncol(unique_phenotype_counts)-n_markers)
+  
+  total_combinations <- 2^n_markers
+  
+  # Select parent population
+  parent_markers <- NULL
+  if(!is.null(parent_phen)){
+    
+    print_log("Filtering for parent population ", parent_phen)
+    
+    parent_phen <- phenotype_to_numbers(parent_phen, markers)
+    
+    has_parent_phen <- unlist(parallel::mclapply(1:nrow(unique_phen), function(i) has_phenotype(unique_phen[i,markers], parent_phen), mc.cores = n_threads))
+    
+    unique_phen <- unique_phen[has_parent_phen,]
+    
+    if(nrow(unique_phen) == 0) stop("Parent phenotype not found... Aborting...")
+    
+    parent_markers <- markers[parent_phen > -1]
+    
+  }
+  
+  # Split job into safe memory chunks
+  
+  unique_phen_size <- object.size(unique_phenotype_counts)
+  
+  if(!max_ram){
+    max_ram <- memuse::Sys.meminfo()[[1]]
+  }else{
+    max_ram <- memuse::as.memuse(max_ram,"MiB")
+  }
+  
+  chunk_size <- (n_threads*100)
+  
+  n_chunks <- ceiling(total_combinations/chunk_size)
+  
+  worst_case_mem <- unique_phen_size * 2.5 * chunk_size
+  
+  if(as.numeric(worst_case_mem) >= as.numeric(max_ram)){
+    chunk_size <- floor(total_combinations/ceiling(n_chunks*(2*worst_case_mem/max_ram)))
+    n_chunks <- ceiling(total_combinations/chunk_size)
+  }
+  
+  if(n_chunks>total_combinations){
+    n_chunks <- total_combinations
+    chunk_size <- 1
+    print_log("WARNING: chunk memory estimation higher than memory available!!!!")
+  }
+  
+  print_log("Estimation of worst-case scenario: ",format(worst_case_mem, units = "auto")," of memory to use...")
+  print_log("Memory available: ", capture.output(print(max_ram)))
+  print_log("Spliting combinations into ",n_chunks," memory-safe chunks to be stored in ", dump_file)
+  
+  
+  append_output <- start_from > 1
+  
+  
+  
+  last_comb <- 0
+  first_comb <- start_from
+  
+  print_log("--------------------------------------------")
+  
+  
+  while(TRUE){
+    
+    if(last_comb == total_combinations) break
+    
+    last_comb <- first_comb+chunk_size-1
+    
+    if(last_comb > total_combinations){
+      last_comb <- total_combinations
+    }
+    
+    print_log("Computing marker combinations from ",format(first_comb, scientific=F), " to ",format(last_comb, scientific=F))
+    
+    print_log("Counting cells for each of the ",format(last_comb-first_comb+1, scientific=F)," marker combinations using ",n_threads," thread(s)...")
+    
+    if(max_phenotype_length > 0) print_log("Filtering combinations by max phenotype length of ", max_phenotype_length)
+    
+    current_marker_combinations <- generate_marker_combinations(n_markers,
+                                                               max_phenotype_length,
+                                                               lower = first_comb,
+                                                               upper = last_comb,
+                                                               n_threads = n_threads)
+    colnames(current_marker_combinations) <- markers
+    
+    first_comb <- last_comb + 1
+    
+    
+    # Select parent population
+    if(!is.null(parent_markers) & nrow(current_marker_combinations) > 0){
+      
+      print_log("Filtering combinations by parent phenotype...")
+      
+      current_marker_combinations[, parent_markers] <- 0
+      
+      current_marker_combinations <- unique(current_marker_combinations)
+      
+    }
+    
+    # Skip chunk if no phenotype has less than max_phenotype_length
+    if(nrow(current_marker_combinations) > 0){
+      
+      n_combinations <- nrow(current_marker_combinations)
+      
+      print_log("Counting cells for ", n_combinations , " combinations left...")
+      
+      
+      
+      if(n_combinations == 1){
+        combinatorial_phenotypes <- group_and_reduce_phenotypes(unique_phenotype_counts,current_marker_combinations[1,])
+      }else{
+        combinatorial_phenotypes <- do.call(rbind,parallel::mclapply(1:n_combinations, function(j) group_and_reduce_phenotypes(unique_phenotype_counts,current_marker_combinations[j,]), mc.cores = n_threads))
+      }
+      
+      print_log(format(nrow(combinatorial_phenotypes), scientific=F)," phenotypes generated...")
+      
+      if(!efficient){
+        # Remove phenotypes where all samples have less then min_count cells
+        if(min_count>0){
+          print_log("Removing phenotypes where all samples have less than ",min_count," cell(s) using ",n_threads," thread(s)...")
+          combinatorial_phenotypes <- combinatorial_phenotypes[unlist(parallel::mclapply(1:nrow(combinatorial_phenotypes), function(j) !all(combinatorial_phenotypes[j,samples_id] < min_count), mc.cores = n_threads)),]
+          print_log(nrow(combinatorial_phenotypes)," phenotypes left...")
+          
+        }
+      }
+      
+      
+      print_log("Writing ",format(nrow(combinatorial_phenotypes), scientific=F)," phenotypes to file...")
+      
+      data.table::fwrite(data.table::as.data.table(combinatorial_phenotypes), dump_file, append = append_output, nThread = n_threads)
+      
+      # To continue appending to file
+      append_output <- TRUE
+      
+    }else{
+      print_log("No combinations left...")
+    }
+    
+    
+    print_log("Marker combinations computed: ",format(last_comb, scientific=F), " out of ",format(total_combinations, scientific=F), " (",format(round((last_comb/total_combinations)*100, 2), nsmall = 2),"%)")
+    
+    print_log("--------------------------------------------")
+    
+    rm(combinatorial_phenotypes)
+    gc(full = TRUE,verbose = FALSE)
+    
+    
+  }
+  
+  
+}

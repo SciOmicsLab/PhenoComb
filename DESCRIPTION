@@ -16,6 +16,7 @@ Imports:
     memuse (>= 4.1),
     parallel (>= 4.1.1),
     Rcpp (>= 1.0.7),
+    RcppAlgos (>= 2.4.3),
     stringr (>= 1.4.0),
     tools (>= 4.1.1)
 LinkingTo: Rcpp

@@ -1,5 +1,7 @@
 
 
+
+
 #' Process raw cell data
 #'
 #' \code{process_cell_data} uses the channel_data and sample_data to filter
@@ -114,6 +116,23 @@ get_unique_phenotype_counts <- function(processed_cell_data, min_count = 0, effi
 
 
 
+# Generates combinatorial matrix with markers to drop
+generate_marker_combinations <- function(n_markers, max_phenotype_length = 0, lower = NULL, upper = NULL, n_threads = 1){
+  
+  local_marker_comb <- as.matrix(RcppAlgos::permuteGeneral(c(1,0), n_markers, repetition = TRUE,
+                                      lower = lower,
+                                      upper = upper,
+                                      ))
+  
+  if(max_phenotype_length > 0 & max_phenotype_length < n_markers){
+    local_marker_comb <- local_marker_comb[unlist(parallel::mclapply(1:nrow(local_marker_comb),
+                                                                     function(i) (n_markers-sum(local_marker_comb[i,])) <= max_phenotype_length,
+                                                                     mc.cores = n_threads)),]  
+  }
+  
+  return(local_marker_comb)
+  
+}
 
 
 
@@ -124,6 +143,7 @@ get_unique_phenotype_counts <- function(processed_cell_data, min_count = 0, effi
 #' for each sample.
 #'
 #' @param processed_cell_data Data.Frame containing filtered and thresholded cell data.
+#' 
 #' Use function \code{process_cell_data} to generate this input.
 #' @param parent_phen Parent phenotype to filter for. All phenotypes generated will contain the parent phenotype.
 #' @param min_count Minimum number of cells that a phenotype must have for at least one sample.
@@ -159,15 +179,8 @@ combinatorial_phenotype_counts <- function(processed_cell_data,
   
   print_log("Generating all ", format(2^n_markers, scientific = FALSE), " marker combinations...")
   
-  marker_combinations <- expand.grid(rep(list(c(T,F)), n_markers))
+  marker_combinations <- generate_marker_combinations(n_markers, max_phenotype_length, n_threads = n_threads)
   colnames(marker_combinations) <- markers
-  
-  if(max_phenotype_length > 0 & max_phenotype_length < n_markers){
-    
-    print_log("Filtering combinations with maximum number of markers of ", max_phenotype_length, ".")
-    marker_combinations <- marker_combinations[unlist(parallel::mclapply(1:nrow(marker_combinations), function(i) (n_markers-sum(marker_combinations[i,])) <= max_phenotype_length, mc.cores = n_threads)),]
-
-  }
   
   # Select parent population
   if(!is.null(parent_phen)){

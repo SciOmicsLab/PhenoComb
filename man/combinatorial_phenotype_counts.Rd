@@ -15,6 +15,7 @@ combinatorial_phenotype_counts(
 }
 \arguments{
 \item{processed_cell_data}{Data.Frame containing filtered and thresholded cell data.
+
 Use function \code{process_cell_data} to generate this input.}
 
 \item{parent_phen}{Parent phenotype to filter for. All phenotypes generated will contain the parent phenotype.}
