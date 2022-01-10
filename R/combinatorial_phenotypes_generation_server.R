@@ -269,6 +269,8 @@ combinatorial_phenotype_counts_server <- function(cell_file,
   cell_data_file <- "processed_cell_data.csv"
   phenotype_counts_file <- "combinatorial_phenotype_counts.csv"
   
+  options(PhenoComb.verbose = verbose)
+  
   
   if(continue){
     
@@ -328,7 +330,7 @@ combinatorial_phenotype_counts_server <- function(cell_file,
             
           }else{
             
-            message("No chunk information found. Starting from scratch...")
+            print_log("No chunk information found. Starting from scratch...")
             
           }
           
@@ -337,15 +339,15 @@ combinatorial_phenotype_counts_server <- function(cell_file,
           # Do continuing stuff
           
         }else{ # If log file does not exist
-          message("Continuation files not found. Starting from scratch...")
+          print_log("Continuation files not found. Starting from scratch...")
         }
         
       }else{# if no files in output_folder
-        message("Continuation files not found. Starting from scratch...")
+        print_log("Continuation files not found. Starting from scratch...")
       }
       
     }else{ # if output_dir does not exist
-      message("Folder ", output_folder, " does not exist. Starting from scratch...")
+      print_log("Folder ", output_folder, " does not exist. Starting from scratch...")
     }
     
   }
@@ -358,7 +360,7 @@ combinatorial_phenotype_counts_server <- function(cell_file,
     if(!dir.exists(output_folder)){
       
       # Create output folder
-      message("Creating output folder at ", output_folder)
+      print_log("Creating output folder at ", output_folder)
       dir.create(output_folder)
       
     }

@@ -217,7 +217,7 @@ combinatorial_phenotype_counts <- function(processed_cell_data,
     if(min_count>0){
       print_log("Removing phenotypes where all samples have less than ",min_count," cell(s) using ",n_threads," thread(s)...")
       
-      combinatorial_phenotypes <- combinatorial_phenotypes[!unlist(mclapply(1:nrow(combinatorial_phenotypes), function(i) all(combinatorial_phenotypes[i,samples_id] < min_count), mc.cores = n_threads)),]
+      combinatorial_phenotypes <- combinatorial_phenotypes[!unlist(parallel::mclapply(1:nrow(combinatorial_phenotypes), function(i) all(combinatorial_phenotypes[i,samples_id] < min_count), mc.cores = n_threads)),]
       
       print_log(nrow(combinatorial_phenotypes)," phenotypes left...")
     }  
