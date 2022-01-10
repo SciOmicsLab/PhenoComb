@@ -426,8 +426,10 @@ combinatorial_phenotype_counts_server <- function(cell_file,
     )
     print_log("Combinatorial phenotype cell counting done.")
     
-    print_log("Removing temporary files...")
-    file.remove(file.path(output_folder,unique_phen_file))
+    if(continue){
+      print_log("Removing temporary files...")
+      file.remove(file.path(output_folder,unique_phen_file))
+    }
     print_log("Done.")
     
     stop_log()  
