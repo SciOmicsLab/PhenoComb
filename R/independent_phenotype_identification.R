@@ -47,7 +47,7 @@ get_independent_relevant_phenotypes <- function(phen_data,
     print_log("Getting first ",n_phenotypes, " most relevant phenotypes...")
     phen_order_factor <- -(normalize_vals(unlist(phen_data[,"log2foldChange"]))*normalize_vals(unlist(phen_data[,"effect_size"])))
     phen_data <- phen_data[order(phen_order_factor),]
-    phen_data <- phen_data[1:n_phenotypes]
+    phen_data <- phen_data[1:n_phenotypes,]
     rownames(phen_data) <- 1:n_phenotypes
     
   }
