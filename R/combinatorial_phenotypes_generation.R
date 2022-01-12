@@ -197,7 +197,7 @@ combinatorial_phenotype_counts <- function(processed_cell_data,
     
     marker_combinations[, parent_markers] <- FALSE
     
-    marker_combinations <- dplyr::distinct(marker_combinations)
+    marker_combinations <- unique(marker_combinations)
     
   }
   
