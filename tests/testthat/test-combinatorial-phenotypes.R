@@ -21,18 +21,18 @@ n_samples <- nrow(sample_data)
 # Generate outputs
 processed_cell_data <- process_cell_data(cell_data,channel_data,sample_data)
 
-combinatorial_phenotypes <- combinatorial_phenotype_counts(processed_cell_data, min_count = 0)
-
-
 
 # Test code
 
 test_that("Generates correct number combinatorial phenotypes", {
+  combinatorial_phenotypes <- combinatorial_phenotype_counts(processed_cell_data, min_count = 0)
   expect_equal(nrow(combinatorial_phenotypes), 81)
 })
 
 test_that("Generates correct counts for combinatorial phenotypes", {
   # Counts must be equal to 2^(total_markers-n_markers)
+  combinatorial_phenotypes <- combinatorial_phenotype_counts(processed_cell_data, min_count = 0)
+  
   row_tests <- unlist(lapply(1:nrow(combinatorial_phenotypes), function(i){
     
     considered_markers <- count_markers(as.numeric(combinatorial_phenotypes[i,1:n_markers]))
@@ -62,11 +62,30 @@ test_that("Generates correct number combinatorial phenotypes using min counts", 
 test_that("Filters correctly for parent phenotypes", {
   parent_filtered_combinatorial_phenotypes <- combinatorial_phenotype_counts(processed_cell_data, min_count = 0, parent_phen = "Marker1+")
   expect_true(all(parent_filtered_combinatorial_phenotypes[,"Marker1"]==1))
+  expect_equal(nrow(parent_filtered_combinatorial_phenotypes),27)
   
   parent_filtered_combinatorial_phenotypes <- combinatorial_phenotype_counts(processed_cell_data, min_count = 0, parent_phen = "Marker1+Marker2-")
   expect_true(all(parent_filtered_combinatorial_phenotypes[,"Marker1"] == 1) & all(parent_filtered_combinatorial_phenotypes[,"Marker2"] == 0))
+  expect_equal(nrow(parent_filtered_combinatorial_phenotypes),9)
 })
 
+
+test_that("Phenotype length limit is correct", {
+  for(n in 1:4){
+    length_limited_combinatorial_phenotypes <- combinatorial_phenotype_counts(processed_cell_data, min_count = 0, max_phenotype_length = n)
+    
+    row_tests <- unlist(lapply(1:nrow(length_limited_combinatorial_phenotypes), function(i){
+      
+      considered_markers <- count_markers(as.numeric(length_limited_combinatorial_phenotypes[i,1:n_markers]))
+      
+      return(considered_markers <= n)
+      
+    }))
+    
+    expect_true(all(row_tests))
+  }
+  
+})
 
 
 test_that("Efficient mode produces same result", {
@@ -99,5 +118,8 @@ rm(cell_data,
    sample_data,
    n_markers,
    n_samples,
-   processed_cell_data,
-   combinatorial_phenotypes)
+   processed_cell_data)
+
+
+
+

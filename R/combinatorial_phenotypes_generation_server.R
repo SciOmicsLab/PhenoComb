@@ -51,11 +51,11 @@ memory_safe_combinatorial_phenotype_counts <- function(unique_phenotype_counts,
     
     parent_phen <- phenotype_to_numbers(parent_phen, markers)
     
-    has_parent_phen <- unlist(parallel::mclapply(1:nrow(unique_phen), function(i) has_phenotype(unique_phen[i,markers], parent_phen), mc.cores = n_threads))
+    has_parent_phen <- unlist(parallel::mclapply(1:nrow(unique_phenotype_counts), function(i) has_phenotype(unique_phenotype_counts[i,markers], parent_phen), mc.cores = n_threads))
     
-    unique_phen <- unique_phen[has_parent_phen,]
+    unique_phenotype_counts <- unique_phenotype_counts[has_parent_phen,]
     
-    if(nrow(unique_phen) == 0) stop("Parent phenotype not found... Aborting...")
+    if(nrow(unique_phenotype_counts) == 0) stop("Parent phenotype not found... Aborting...")
     
     parent_markers <- markers[parent_phen > -1]
     
