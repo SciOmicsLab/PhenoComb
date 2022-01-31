@@ -130,6 +130,8 @@ generate_marker_combinations <- function(n_markers, max_phenotype_length = 0, lo
                                                                      mc.cores = n_threads)),]  
   }
   
+  if(nrow(local_marker_comb) == 0) return(NULL)
+  
   return(local_marker_comb)
   
 }
