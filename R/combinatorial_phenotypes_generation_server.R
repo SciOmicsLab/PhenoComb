@@ -115,31 +115,34 @@ memory_safe_combinatorial_phenotype_counts <- function(unique_phenotype_counts,
     
     print_log("Computing marker combinations from ",format(first_comb, scientific=F), " to ",format(last_comb, scientific=F)," using ",n_threads," thread(s)...")
     
-    if(max_phenotype_length > 0) print_log("Filtering combinations by max phenotype length of ", max_phenotype_length)
+    if(max_phenotype_length > 0 & max_phenotype_length < n_markers) print_log("Filtering combinations by max phenotype length of ", max_phenotype_length)
     
     current_marker_combinations <- generate_marker_combinations(n_markers,
                                                                 max_phenotype_length,
                                                                 lower = first_comb,
                                                                 upper = last_comb,
                                                                 n_threads = n_threads)
-    colnames(current_marker_combinations) <- markers
     
     first_comb <- last_comb + 1
     
-    
-    # Select parent population
-    if(!is.null(parent_markers) & nrow(current_marker_combinations) > 0){
-      
-      print_log("Filtering combinations by parent phenotype...")
-      
-      current_marker_combinations[, parent_markers] <- 0
-      
-      current_marker_combinations <- unique(current_marker_combinations)
-      
-    }
-    
     # Skip chunk if no phenotype has less than max_phenotype_length
     if(nrow(current_marker_combinations) > 0){
+      
+      
+      colnames(current_marker_combinations) <- markers
+      
+      # Select parent population
+      if(!is.null(parent_markers) & nrow(current_marker_combinations) > 0){
+        
+        print_log("Filtering combinations by parent phenotype...")
+        
+        current_marker_combinations[, parent_markers] <- 0
+        
+        current_marker_combinations <- unique(current_marker_combinations)
+        
+      }
+    
+    
       
       n_combinations <- nrow(current_marker_combinations)
       
