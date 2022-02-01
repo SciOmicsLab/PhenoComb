@@ -124,6 +124,10 @@ generate_marker_combinations <- function(n_markers, max_phenotype_length = 0, lo
                                       upper = upper,
                                       ))
   
+  # KNOWN BUG
+  # if last command returns only one combination
+  # will probably produce a "argument of length 0" error
+  
   if(max_phenotype_length > 0 & max_phenotype_length < n_markers){
     local_marker_comb <- local_marker_comb[unlist(parallel::mclapply(1:nrow(local_marker_comb),
                                                                      function(i) (n_markers-sum(local_marker_comb[i,])) <= max_phenotype_length,
