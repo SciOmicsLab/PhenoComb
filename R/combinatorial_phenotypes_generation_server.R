@@ -126,10 +126,12 @@ memory_safe_combinatorial_phenotype_counts <- function(unique_phenotype_counts,
     first_comb <- last_comb + 1
     
     # Skip chunk if no phenotype has less than max_phenotype_length
-    if(!is.null(current_marker_combinations)){
+    if(nrow(current_marker_combinations)){
       
       
       colnames(current_marker_combinations) <- markers
+      
+      current_marker_combinations <- as.matrix(current_marker_combinations)
       
       # Select parent population
       if(!is.null(parent_markers) & nrow(current_marker_combinations) > 0){

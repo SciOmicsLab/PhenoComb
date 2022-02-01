@@ -119,7 +119,7 @@ get_unique_phenotype_counts <- function(processed_cell_data, min_count = 0, effi
 # Generates combinatorial matrix with markers to drop
 generate_marker_combinations <- function(n_markers, max_phenotype_length = 0, lower = NULL, upper = NULL, n_threads = 1){
   
-  local_marker_comb <- as.matrix(RcppAlgos::permuteGeneral(c(1,0), n_markers, repetition = TRUE,
+  local_marker_comb <- as.data.frame(RcppAlgos::permuteGeneral(c(1,0), n_markers, repetition = TRUE,
                                       lower = lower,
                                       upper = upper,
                                       ))
@@ -129,10 +129,6 @@ generate_marker_combinations <- function(n_markers, max_phenotype_length = 0, lo
                                                                      function(i) (n_markers-sum(local_marker_comb[i,])) <= max_phenotype_length,
                                                                      mc.cores = n_threads)),]  
   }
-  
-  print(local_marker_comb)
-  
-  if(length(local_marker_comb) == 0) return(NULL)
   
   return(local_marker_comb)
   
