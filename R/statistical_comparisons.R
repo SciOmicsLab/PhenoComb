@@ -24,7 +24,13 @@ mann_whitney_u_test <- function(g1,g2,n_comparisons){
 }
 
 # Performs statistical comparision for each row of g1 and g2
-statistical_test <- function(g1, g2, n_threads = 1){
+statistical_test_group <- function(counts_data, sample_data, groups_column, g1, g2, n_threads = 1){
+  
+  g1_IDs <- as.character(sample_data[sample_data[,groups_column] %in% g1,"Sample_ID"])
+  g2_IDs <- as.character(sample_data[sample_data[,groups_column] %in% g2,"Sample_ID"])
+  
+  g1 <- counts_data[,g1_IDs]
+  g2 <- counts_data[,g2_IDs]
   
   n_comparisons <- ncol(g1)*ncol(g2)
   
@@ -34,7 +40,13 @@ statistical_test <- function(g1, g2, n_threads = 1){
   
   st_test[is.nan(st_test)] <- 1.
   
-  return(st_test)
+  st_test <- as.data.frame(st_test)
+  
+  counts_data <- cbind(counts_data,st_test)
+  
+  counts_data$log2foldChange <- get_log2foldChange(counts_data[, g1_IDs], counts_data[, g2_IDs], n_threads)
+  
+  return(counts_data)
 }
 
 # Compute the log2foldChange between two vectors
@@ -52,6 +64,42 @@ get_log2foldChange <- function(g1, g2, n_threads = 1){
   return(l2fc)
 }
 
+
+kendall_correlation_test <- function(x,y){
+  if(sd(x) == 0) return(c(0.,1.))
+  x <- as.numeric(x)
+  y <- as.numeric(y)
+  cor_test <- cor.test(x,y,method = "kendall")
+  return(c(cor_test$estimate,cor_test$p.value))
+}
+
+statistical_test_correlation <- function(counts_data, sample_data, correlation_column, n_threads = 1){
+  
+  sample_ids <- as.character(sample_data$Sample_ID)
+  
+  correlation_data <- sample_data[,correlation_column]
+  
+  st_test <- as.matrix(do.call(rbind,parallel::mclapply(1:nrow(counts_data), function(i) kendall_correlation_test(counts_data[i,sample_ids], correlation_data), mc.cores = n_threads)))
+  
+  colnames(st_test) <- c("correlation","p_value")
+  
+  st_test[is.nan(st_test)] <- 1.
+  
+  st_test <- as.data.frame(st_test)
+  
+  counts_data <- cbind(counts_data,st_test)
+  
+  return(counts_data)
+  
+}
+
+survival_test <- function(correlates, survival_times, status){
+  
+  survival_estimates <- sm::sm.survival(correlates,survival_times,status,)$estimate
+  
+  
+  
+}
 
 #' Filter statistically relevant phenotypes by comparing two sample groups
 #' 
@@ -73,9 +121,13 @@ get_log2foldChange <- function(g1, g2, n_threads = 1){
 compute_statistically_relevant_phenotypes <- function(phenotype_cell_counts,
                                                       channel_data,
                                                       sample_data,
-                                                      groups_column,
-                                                      g1,
-                                                      g2,
+                                                      test_type = "group", # Options: "group", "correlation", "survival"
+                                                      groups_column = NULL,
+                                                      g1 = NULL,
+                                                      g2 = NULL,
+                                                      correlation_column = NULL,
+                                                      survival_time_column = NULL,
+                                                      survival_status = NULL,
                                                       max_pval = 0.05,
                                                       parent_phen = NULL,
                                                       n_threads = 1
@@ -83,17 +135,12 @@ compute_statistically_relevant_phenotypes <- function(phenotype_cell_counts,
   
   print_log("Starting statistical filtering...")
   
-  print_log("Getting sample groups...")
-  
-  g1_IDs <- as.character(sample_data[sample_data[,groups_column] %in% g1,"Sample_ID"])
-  g2_IDs <- as.character(sample_data[sample_data[,groups_column] %in% g2,"Sample_ID"])
-  
   markers <- channel_data[,"Marker"]
   n_markers <- length(markers)
   
-  sample_dt <- phenotype_cell_counts[ , c(g1_IDs,g2_IDs)]
+  sample_ids <- as.character(sample_data$Sample_ID)
   
-  per_sample_total_counts <- sample_dt[1,]
+  per_sample_total_counts <- phenotype_cell_counts[1,]
   
   #Filter for parent phenotype
   if(!is.null(parent_phen)){
@@ -116,42 +163,46 @@ compute_statistically_relevant_phenotypes <- function(phenotype_cell_counts,
       
       has_parent_phen <- unlist(parallel::mclapply(1:nrow(phenotype_cell_counts), function(i) has_phenotype(phenotype_cell_counts[i, markers], parent_phen), mc.cores = n_threads))
       
-      sample_dt <- sample_dt[has_parent_phen , ]
-      per_sample_total_counts <- parent_phen_data[ , c(g1_IDs,g2_IDs)]
-      
       phenotype_cell_counts <- phenotype_cell_counts[has_parent_phen, ]
+      
+      per_sample_total_counts <- parent_phen_data
       
     }
     
   }
   
   print_log("Computing frequencies...")
-  sample_dt <- count_to_frequency(sample_dt, per_sample_total_counts, n_threads)
+  phenotype_cell_counts[,sample_ids] <- count_to_frequency(phenotype_cell_counts[,sample_ids], per_sample_total_counts[,sample_ids], n_threads)
+  
   
   print_log("Computing statistical test...")
-  st_test <- statistical_test(sample_dt[, g1_IDs],sample_dt[, g2_IDs],n_threads)
   
-  final_significant_phens <- cbind(phenotype_cell_counts[, markers],sample_dt,st_test)
-  
-  print_log("Filtering statistically relevant phenotypes with p-value <= ",max_pval)
-  
-  pval_filter <- c(FALSE,unlist(parallel::mclapply(2:nrow(final_significant_phens), function(i) final_significant_phens[i,"p_value"] <= max_pval, mc.cores = n_threads)))
-  
-  final_significant_phens <- final_significant_phens[pval_filter, ]
-  
-  if(nrow(final_significant_phens)){
-    print_log("Computing log2foldChanges...")
-    final_significant_phens$log2foldChange <- get_log2foldChange(final_significant_phens[ , g1_IDs], final_significant_phens[ , g2_IDs], n_threads)
+  if(test_type == "group"){
+    
+    phenotype_cell_counts <- statistical_test_group(phenotype_cell_counts, sample_data, groups_column, g1, g2, n_threads = n_threads)
+    
+  }else if(test_type == "correlation"){
+    
+    phenotype_cell_counts <- statistical_test_correlation(phenotype_cell_counts, sample_data, correlation_column, n_threads = n_threads)
+    
   }
   
-  print_log("Final statistically relevant phenotypes: ",nrow(final_significant_phens))
   
-  rm(phenotype_cell_counts,st_test,sample_dt)
-  gc(verbose = F, full = T)
-  
-  
-  return(final_significant_phens)
+  print_log("Filtering statistically relevant phenotypes with p-value <= ",max_pval)
+
+  pval_filter <- unlist(parallel::mclapply(1:nrow(phenotype_cell_counts), function(i) phenotype_cell_counts[i,"p_value"] <= max_pval, mc.cores = n_threads))
+
+  phenotype_cell_counts <- phenotype_cell_counts[pval_filter, ]
+
+  print_log("Final statistically relevant phenotypes: ",nrow(phenotype_cell_counts))
+
+
+  return(phenotype_cell_counts)
 }
+
+
+
+
 
 
 

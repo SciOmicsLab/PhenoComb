@@ -31,13 +31,14 @@ test_that("Perform statistical comparison correctly", {
     tmp_folder,
     channel_file,
     sample_file,
-    "Group",
-    "g1",
-    "g2",
+    test_type = "group",
+    groups_column = "Group",
+    g1 = "g1",
+    g2 = "g2",
     max_pval = 1.
   ))
   
-  relevant_phenotypes <- read.csv(file.path(tmp_folder,"significant_phenotypes_Group_g1_vs_g2_pval_1.csv"))
+  relevant_phenotypes <- read.csv(file.path(tmp_folder,"significant_phenotypes.csv"))
   
   
   expect_equal(nrow(relevant_phenotypes), 80)
@@ -62,13 +63,14 @@ test_that("Filters by p-value correctly", {
     tmp_folder,
     channel_file,
     sample_file,
-    "Group",
-    "g1",
-    "g2",
+    test_type = "group",
+    groups_column = "Group",
+    g1 = "g1",
+    g2 = "g2",
     max_pval = 0.5
   ))
   
-  relevant_phenotypes <- read.csv(file.path(tmp_folder,"significant_phenotypes_Group_g1_vs_g2_pval_0.5.csv"))
+  relevant_phenotypes <- read.csv(file.path(tmp_folder,"significant_phenotypes.csv"))
   
   expect_equal(nrow(relevant_phenotypes), 60)
   expect_equal(ncol(relevant_phenotypes),n_markers+n_samples+3)
@@ -90,14 +92,15 @@ test_that("Filters for parent phenotype", {
     tmp_folder,
     channel_file,
     sample_file,
-    "Group",
-    "g1",
-    "g2",
+    test_type = "group",
+    groups_column = "Group",
+    g1 = "g1",
+    g2 = "g2",
     max_pval = 1.0,
     parent_phen = "Marker1+"
   ))
   
-  relevant_phenotypes <- read.csv(file.path(tmp_folder,"significant_phenotypes_parent_Marker1+_Group_g1_vs_g2_pval_1.csv"))
+  relevant_phenotypes <- read.csv(file.path(tmp_folder,"significant_phenotypes.csv"))
   
   
   expect_equal(nrow(relevant_phenotypes), 27)
@@ -107,14 +110,15 @@ test_that("Filters for parent phenotype", {
     tmp_folder,
     channel_file,
     sample_file,
-    "Group",
-    "g1",
-    "g2",
+    test_type = "group",
+    groups_column = "Group",
+    g1 = "g1",
+    g2 = "g2",
     max_pval = 1.0,
     parent_phen = "Marker1+Marker2-"
   ))
   
-  relevant_phenotypes <- read.csv(file.path(tmp_folder,"significant_phenotypes_parent_Marker1+Marker2-_Group_g1_vs_g2_pval_1.csv"))
+  relevant_phenotypes <- read.csv(file.path(tmp_folder,"significant_phenotypes.csv"))
   
   expect_equal(nrow(relevant_phenotypes), 9)
   expect_equal(ncol(relevant_phenotypes),n_markers+n_samples+3)

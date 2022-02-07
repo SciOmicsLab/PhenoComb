@@ -22,26 +22,28 @@ n_samples <- nrow(sample_data)
 
 test_that("Perform statistical comparison correctly", {
   
-  relevant_phenotypes <- suppressWarnings(compute_statistically_relevant_phenotypes(combinatorial_phenotypes,
-                                                                                    channel_data,
-                                                                                    sample_data,
-                                                                                    "Group",
-                                                                                    "g1",
-                                                                                    "g2",
+  relevant_phenotypes <- suppressWarnings(compute_statistically_relevant_phenotypes(
+                                                                                    phenotype_cell_counts =  combinatorial_phenotypes,
+                                                                                    channel_data = channel_data,
+                                                                                    sample_data = sample_data,
+                                                                                    test_type = "group",
+                                                                                    groups_column = "Group",
+                                                                                    g1 = "g1",
+                                                                                    g2 = "g2",
                                                                                     max_pval = 1.
   ))
   
-  expect_equal(nrow(relevant_phenotypes), 80)
+  expect_equal(nrow(relevant_phenotypes), 81)
   expect_equal(ncol(relevant_phenotypes),n_markers+n_samples+3)
   
-  expect_true(all(relevant_phenotypes[1:20,"effect_size"] == 0))
-  expect_true(all(relevant_phenotypes[1:20,"log2FoldChange"] == 0))
+  expect_true(all(relevant_phenotypes[1:21,"effect_size"] == 0))
+  expect_true(all(relevant_phenotypes[1:21,"log2FoldChange"] == 0))
   
-  expect_true(all(relevant_phenotypes[21:50,"effect_size"] == 1))
-  expect_true(all(relevant_phenotypes[21:50,"log2FoldChange"] == 1))
+  expect_true(all(relevant_phenotypes[22:50,"effect_size"] == 1))
+  expect_true(all(relevant_phenotypes[22:50,"log2FoldChange"] == 1))
   
-  expect_true(all(relevant_phenotypes[51:80,"effect_size"] == -1))
-  expect_true(all(relevant_phenotypes[51:80,"log2FoldChange"] == -1))
+  expect_true(all(relevant_phenotypes[52:81,"effect_size"] == -1))
+  expect_true(all(relevant_phenotypes[52:81,"log2FoldChange"] == -1))
   
 })
 
@@ -50,9 +52,10 @@ test_that("Filters by p-value correctly", {
   relevant_phenotypes <- suppressWarnings(compute_statistically_relevant_phenotypes(combinatorial_phenotypes,
                                                                                     channel_data,
                                                                                     sample_data,
-                                                                                    "Group",
-                                                                                    "g1",
-                                                                                    "g2",
+                                                                                    test_type = "group",
+                                                                                    groups_column = "Group",
+                                                                                    g1 = "g1",
+                                                                                    g2 = "g2",
                                                                                     max_pval = 0.5
   ))
   
@@ -75,27 +78,29 @@ test_that("Filters for parent phenotype", {
   relevant_phenotypes <- suppressWarnings(compute_statistically_relevant_phenotypes(combinatorial_phenotypes,
                                                                                     channel_data,
                                                                                     sample_data,
-                                                                                    "Group",
-                                                                                    "g1",
-                                                                                    "g2",
+                                                                                    test_type = "group",
+                                                                                    groups_column = "Group",
+                                                                                    g1 = "g1",
+                                                                                    g2 = "g2",
                                                                                     max_pval = 1.0,
                                                                                     parent_phen = "Marker1+"
   ))
   
-  expect_equal(nrow(relevant_phenotypes), 26)
+  expect_equal(nrow(relevant_phenotypes), 27)
   expect_equal(ncol(relevant_phenotypes),n_markers+n_samples+3)
   
   relevant_phenotypes <- suppressWarnings(compute_statistically_relevant_phenotypes(combinatorial_phenotypes,
                                                                                     channel_data,
                                                                                     sample_data,
-                                                                                    "Group",
-                                                                                    "g1",
-                                                                                    "g2",
+                                                                                    test_type = "group",
+                                                                                    groups_column = "Group",
+                                                                                    g1 = "g1",
+                                                                                    g2 = "g2",
                                                                                     max_pval = 1.0,
                                                                                     parent_phen = "Marker1+Marker2-"
   ))
   
-  expect_equal(nrow(relevant_phenotypes), 8)
+  expect_equal(nrow(relevant_phenotypes), 9)
   expect_equal(ncol(relevant_phenotypes),n_markers+n_samples+3)
   
   
