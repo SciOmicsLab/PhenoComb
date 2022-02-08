@@ -32,11 +32,19 @@ statistically_relevant_phenotypes_server(
 
 \item{sample_file}{Path to a ".csv" file containing a Sample_ID column and additional grouping columns for the samples.}
 
+\item{test_type}{Type of statistical test to be performed. Value can be "group", "correlation", or "survival". Default: "group".
+Additional parameters should be provided accordingly, such as [groups_column, g1, g2] for "group", [correlation_column] for "correlation", 
+and [survival_time_column, survival_status_column] for "survival". Parameters not used in the test will be ignored.}
+
 \item{groups_column}{Column name in \code{sample_data} where group identifications are stored.}
 
 \item{g1}{Group label or vector with group labels for first group.}
 
 \item{g2}{Group label or vector with group labels for second group.}
+
+\item{correlation_column}{Column name in \code{sample_data} where data to be correlated is stored.}
+
+\item{survival_time_column}{Column name in \code{sample_data} where survival time is stored.}
 
 \item{max_pval}{Maximum p-value. Used to filter phenotypes in final output.}
 
@@ -47,6 +55,8 @@ statistically_relevant_phenotypes_server(
 \item{n_threads}{Number of threads to be used. Default: 1.}
 
 \item{verbose}{If TRUE, print outputs from log to stdout.}
+
+\item{survival_status_column}{Column name in \code{sample_data} where survival status is stored.}
 }
 \value{
 Output is saved to file.

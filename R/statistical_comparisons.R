@@ -139,9 +139,15 @@ statistical_test_survival <- function(counts_data, sample_data, survival_time_co
 #' is a unique phenotype.
 #' @param channel_data Data.Frame containing columns named: Channel, Marker, T1, [T2, T3, ... , Tn], [OOB].
 #' @param sample_data Data.Frame containing a Sample_ID column and additional grouping columns for the samples.
+#' @param test_type Type of statistical test to be performed. Value can be "group", "correlation", or "survival". Default: "group".
+#' Additional parameters should be provided accordingly, such as [groups_column, g1, g2] for "group", [correlation_column] for "correlation", 
+#' and [survival_time_column, survival_status_column] for "survival". Parameters not used in the test will be ignored.
 #' @param groups_column Column name in \code{sample_data} where group identifications are stored.
 #' @param g1 Group label or vector with group labels for first group.
 #' @param g2 Group label or vector with group labels for second group.
+#' @param correlation_column Column name in \code{sample_data} where data to be correlated is stored.
+#' @param survival_time_column Column name in \code{sample_data} where survival time is stored.
+#' @param survival_status_column Column name in \code{sample_data} where survival status is stored.
 #' @param max_pval Maximum p-value. Used to filter phenotypes in final output.
 #' @param parent_phen Parent phenotype to filter for. All phenotypes in the output will contain the parent phenotype.
 #' @param n_threads Number of threads to be used. Default: 1.
