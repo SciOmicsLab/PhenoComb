@@ -52,9 +52,9 @@ process_cell_data <- function(cell_data, channel_data, sample_data, sampleID_col
     
     oob_data <- as.numeric(channel_data[,"OOB"])
     
-    cell_data_list <- t(as.matrix(cell_data[,channel_data[,"Marker"]]))
+    cell_data_list <- as.matrix(cell_data[,channel_data[,"Marker"]])
     
-    cell_data_list <- parallel::mclapply(seq_len(ncol(cell_data_list)), function(i) cell_data_list[,i], mc.cores = n_threads)
+    cell_data_list <- parallel::mclapply(seq_len(nrow(cell_data_list)), function(i) cell_data_list[i,], mc.cores = n_threads)
     
     oob_filter <- unlist(parallel::mclapply(cell_data_list, function(row) !any(row > oob_data), mc.cores = n_threads))
     
