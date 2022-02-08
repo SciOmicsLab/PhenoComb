@@ -17,6 +17,7 @@ Imports:
     parallel (>= 4.1.1),
     Rcpp (>= 1.0.7),
     RcppAlgos (>= 2.4.3),
+    sm,
     stringr (>= 1.4.0),
     tools (>= 4.1.1)
 LinkingTo: Rcpp

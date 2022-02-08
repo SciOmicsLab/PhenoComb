@@ -14,7 +14,7 @@ compute_statistically_relevant_phenotypes(
   g2 = NULL,
   correlation_column = NULL,
   survival_time_column = NULL,
-  survival_status = NULL,
+  survival_status_column = NULL,
   max_pval = 0.05,
   parent_phen = NULL,
   n_threads = 1

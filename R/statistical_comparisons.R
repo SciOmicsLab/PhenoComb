@@ -93,11 +93,40 @@ statistical_test_correlation <- function(counts_data, sample_data, correlation_c
   
 }
 
-survival_test <- function(correlates, survival_times, status){
+survival_test <- function(correlates, survival_times, status, h){
   
-  survival_estimates <- sm::sm.survival(correlates,survival_times,status,)$estimate
+  correlates <- as.numeric(correlates)
+  
+  h <- sd(correlates)/(length(correlates)^(-1/4))
+  
+  survival_estimates <- sm::sm.survival(correlates,survival_times,status, h, display = "none")$estimate
+  
+  return(kendall_correlation_test(correlates,survival_estimates))
+  
+}
+
+
+statistical_test_survival <- function(counts_data, sample_data, survival_time_column, survival_status_column, n_threads = 1){
+  
+  sample_ids <- as.character(sample_data$Sample_ID)
+  
+  survival_time_data <- as.numeric(sample_data[,survival_time_column])
+  
+  survival_status_data <- as.numeric(sample_data[,survival_status_column])
   
   
+  
+  st_test <- as.matrix(do.call(rbind,parallel::mclapply(1:nrow(counts_data), function(i) survival_test(counts_data[i,sample_ids], survival_time_data, survival_status_data), mc.cores = n_threads)))
+  
+  colnames(st_test) <- c("correlation","p_value")
+  
+  st_test[is.nan(st_test)] <- 1.
+  
+  st_test <- as.data.frame(st_test)
+  
+  counts_data <- cbind(counts_data,st_test)
+  
+  return(counts_data)
   
 }
 
@@ -127,7 +156,7 @@ compute_statistically_relevant_phenotypes <- function(phenotype_cell_counts,
                                                       g2 = NULL,
                                                       correlation_column = NULL,
                                                       survival_time_column = NULL,
-                                                      survival_status = NULL,
+                                                      survival_status_column = NULL,
                                                       max_pval = 0.05,
                                                       parent_phen = NULL,
                                                       n_threads = 1
@@ -185,6 +214,14 @@ compute_statistically_relevant_phenotypes <- function(phenotype_cell_counts,
     
     phenotype_cell_counts <- statistical_test_correlation(phenotype_cell_counts, sample_data, correlation_column, n_threads = n_threads)
     
+  }else if(test_type == "survival"){
+    
+    phenotype_cell_counts <- statistical_test_survival(phenotype_cell_counts, sample_data, survival_time_column, survival_status_column, n_threads = n_threads)
+    
+  }else{
+    print_log("Statistical test type not valid. test_type should be in c(group, correlation, survival).")
+    print_log("Aborting...")
+    stop("Invalid value for test_type.")
   }
   
   
