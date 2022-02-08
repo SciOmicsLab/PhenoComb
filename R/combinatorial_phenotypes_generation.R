@@ -39,7 +39,7 @@ check_channel_data <- function(channel_data){
   
   if(!("T1" %in% colnames(channel_data))){
     
-    stop("'T1' column not found in channel data. At least one threshold column, named 'T1' must be provided. More thresholds can be indicated as 'T2', 'T3'...")
+    stop("'T1' column not found in channel data. At least one threshold column, named 'T1', must be provided. More thresholds can be indicated as 'T2', 'T3'...")
     
   }
   
