@@ -2,6 +2,50 @@
 
 
 
+check_sample_data <- function(sample_data){
+  
+  if(!("Sample_ID" %in% colnames(sample_data))){
+    
+    stop("'Sample_ID' column not found in sample data. IDs must be listed in the Sample_ID column. ")
+    
+  }
+  
+}
+
+
+check_cell_data <- function(cell_data, sampleID_col){
+  
+  if(!any(colnames(cell_data) == sampleID_col)){
+    
+    stop(paste("Column", sampleID_col," not found in cell data.", sep = ""))
+    
+  }
+  
+}
+
+check_channel_data <- function(channel_data){
+  
+  if(!("Channel" %in% colnames(channel_data))){
+    
+    stop("'Channel' column not found in channel data. The 'Channel' column matching exactly the channel names in cell data is required.")
+    
+  }
+  
+  if(!("Marker" %in% colnames(channel_data))){
+    
+    stop("'Marker' column not found in channel data. The 'Marker' column with marker names is required.")
+    
+  }
+  
+  if(!("T1" %in% colnames(channel_data))){
+    
+    stop("'T1' column not found in channel data. At least one threshold column, named 'T1' must be provided. More thresholds can be indicated as 'T2', 'T3'...")
+    
+  }
+  
+}
+
+
 #' Process raw cell data
 #'
 #' \code{process_cell_data} uses the channel_data and sample_data to filter
@@ -24,9 +68,10 @@ process_cell_data <- function(cell_data, channel_data, sample_data, sampleID_col
   channel_data <- as.data.frame(channel_data)
   sample_data <- as.data.frame(sample_data)
   
-  if(!any(colnames(cell_data) == sampleID_col)){
-    stop(paste("Column", sampleID_col," not found in cell data.", sep = ""))
-  }
+  # Check data format required
+  check_channel_data(channel_data)
+  check_sample_data(sample_data)
+  check_cell_data(cell_data, sampleID_col)
   
   # Rename SampleID and filter samples if in sample data
   colnames(cell_data)[colnames(cell_data) == sampleID_col] <- 'Sample_ID'
