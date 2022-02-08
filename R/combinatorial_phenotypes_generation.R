@@ -50,7 +50,18 @@ process_cell_data <- function(cell_data, channel_data, sample_data, sampleID_col
     
     print_log("Removing cells with values over OOB using ",n_threads," thread(s)...")
     
-    cell_data <- cell_data[unlist(parallel::mclapply(1:nrow(cell_data),function(i) !any(cell_data[i,channel_data[,"Marker"]] > channel_data[,"OOB"]), mc.cores = n_threads)),]
+    oob_data <- as.numeric(channel_data[,"OOB"])
+    
+    cell_data_list <- t(as.matrix(cell_data[,channel_data[,"Marker"]]))
+    
+    cell_data_list <- parallel::mclapply(seq_len(ncol(cell_data_list)), function(i) cell_data_list[,i], mc.cores = n_threads)
+    
+    oob_filter <- unlist(parallel::mclapply(cell_data_list, function(row) !any(row > oob_data), mc.cores = n_threads))
+    
+    cell_data <- cell_data[oob_filter,]
+    
+    rm(cell_data_list, oob_filter)
+    gc(full = TRUE,verbose = FALSE)
     
   }
   
