@@ -17,7 +17,7 @@ statistically_relevant_phenotypes_server(
   g2 = NULL,
   correlation_column = NULL,
   survival_time_column = NULL,
-  survival_status = NULL,
+  survival_status_column = NULL,
   max_pval = 0.05,
   parent_phen = NULL,
   continue = FALSE,
@@ -46,6 +46,8 @@ and [survival_time_column, survival_status_column] for "survival". Parameters no
 
 \item{survival_time_column}{Column name in \code{sample_data} where survival time is stored.}
 
+\item{survival_status_column}{Column name in \code{sample_data} where survival status is stored.}
+
 \item{max_pval}{Maximum p-value. Used to filter phenotypes in final output.}
 
 \item{parent_phen}{Parent phenotype to filter for. All phenotypes in the output will contain the parent phenotype.}
@@ -55,8 +57,6 @@ and [survival_time_column, survival_status_column] for "survival". Parameters no
 \item{n_threads}{Number of threads to be used. Default: 1.}
 
 \item{verbose}{If TRUE, print outputs from log to stdout.}
-
-\item{survival_status_column}{Column name in \code{sample_data} where survival status is stored.}
 }
 \value{
 Output is saved to file.
