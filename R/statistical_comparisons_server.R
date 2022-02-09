@@ -83,7 +83,7 @@ memory_safe_compute_statistically_relevant_phenotypes <- function(output_folder,
     print_log("Finding last phenotype computed in file...")
   }
   
-  laf <- LaF::laf_open_csv(phenotype_counts_file_path, column_types = column_types, skip = start_from+2)
+  laf <- LaF::laf_open_csv(phenotype_counts_file_path, column_types = column_types, skip = start_from+1)
   
   print_log("--------------------------------------------")
   
