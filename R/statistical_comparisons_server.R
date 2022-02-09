@@ -128,6 +128,14 @@ memory_safe_compute_statistically_relevant_phenotypes <- function(output_folder,
       
       pheno_counts <- statistical_test_correlation(pheno_counts, sample_data, correlation_column, n_threads = n_threads)
       
+    }else if(test_type == "survival"){
+      
+      pheno_counts <- statistical_test_survival(pheno_counts, sample_data, survival_time_column, survival_status_column, n_threads = n_threads)
+      
+    }else{
+      print_log("Statistical test type not valid. test_type should be in c(group, correlation, survival).")
+      print_log("Aborting...")
+      stop("Invalid value for test_type.")
     }
     
     print_log("Filtering statistically relevant phenotypes...")

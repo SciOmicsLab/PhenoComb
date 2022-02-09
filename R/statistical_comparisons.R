@@ -46,6 +46,9 @@ statistical_test_group <- function(counts_data, sample_data, groups_column, g1, 
   
   counts_data$log2foldChange <- get_log2foldChange(counts_data[, g1_IDs], counts_data[, g2_IDs], n_threads)
   
+  rm(st_test)
+  gc(full = TRUE,verbose = FALSE)
+  
   return(counts_data)
 }
 
@@ -79,7 +82,13 @@ statistical_test_correlation <- function(counts_data, sample_data, correlation_c
   
   correlation_data <- sample_data[,correlation_column]
   
-  st_test <- as.matrix(do.call(rbind,parallel::mclapply(1:nrow(counts_data), function(i) kendall_correlation_test(counts_data[i,sample_ids], correlation_data), mc.cores = n_threads)))
+  counts_data_list <- as.matrix(counts_data[,sample_ids])
+  
+  counts_data_list <- parallel::mclapply(seq_len(nrow(counts_data_list)), function(i) counts_data_list[i,], mc.cores = n_threads)
+  
+  st_test <- as.matrix(do.call(rbind,parallel::mclapply(counts_data_list, function(row) kendall_correlation_test(row, correlation_data), mc.cores = n_threads)))
+  
+  rm(counts_data_list)
   
   colnames(st_test) <- c("correlation","p_value")
   
@@ -89,19 +98,27 @@ statistical_test_correlation <- function(counts_data, sample_data, correlation_c
   
   counts_data <- cbind(counts_data,st_test)
   
+  rm(st_test)
+  gc(full = TRUE,verbose = FALSE)
+  
   return(counts_data)
   
 }
 
-survival_test <- function(correlates, survival_times, status, h){
+
+survival_test <- function(correlates, survival_times, status){
   
   correlates <- as.numeric(correlates)
   
-  h <- sd(correlates)/(length(correlates)^(-1/4))
+  test_data <- list(time = survival_times, 
+                status = status, 
+                x = correlates)
   
-  survival_estimates <- sm::sm.survival(correlates,survival_times,status, h, display = "none")$estimate
+  surv_test <- summary(survival::coxph(survival::Surv(time, status) ~ x, test_data))
+
+  rm(test_data)
   
-  return(kendall_correlation_test(correlates,survival_estimates))
+  return(c(surv_test$coefficients[1],surv_test$sctest[3]))
   
 }
 
@@ -114,17 +131,24 @@ statistical_test_survival <- function(counts_data, sample_data, survival_time_co
   
   survival_status_data <- as.numeric(sample_data[,survival_status_column])
   
+  counts_data_list <- as.matrix(counts_data[,sample_ids])
   
+  counts_data_list <- parallel::mclapply(seq_len(nrow(counts_data_list)), function(i) counts_data_list[i,], mc.cores = n_threads)
   
-  st_test <- as.matrix(do.call(rbind,parallel::mclapply(1:nrow(counts_data), function(i) survival_test(counts_data[i,sample_ids], survival_time_data, survival_status_data), mc.cores = n_threads)))
+  st_test <- as.matrix(do.call(rbind,parallel::mclapply(counts_data_list, function(row) survival_test(row, survival_time_data, survival_status_data), mc.cores = n_threads)))
   
-  colnames(st_test) <- c("correlation","p_value")
+  rm(counts_data_list)
+  
+  colnames(st_test) <- c("coxph_coefficient","p_value")
   
   st_test[is.nan(st_test)] <- 1.
   
   st_test <- as.data.frame(st_test)
   
   counts_data <- cbind(counts_data,st_test)
+  
+  rm(st_test)
+  gc(full = TRUE,verbose = FALSE)
   
   return(counts_data)
   
