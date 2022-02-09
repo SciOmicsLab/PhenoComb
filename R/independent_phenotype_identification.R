@@ -1,5 +1,27 @@
 
 
+get_statistical_test <- function(phen_data){
+  
+  if("effect_size" %in% colnames(phen_data) & "log2foldChange" %in% colnames(phen_data)){
+    
+    return(c("effect_size","log2foldChange"))
+    
+  }else if("correlation" %in% colnames(phen_data)){
+    
+    return(c("correlation"))
+    
+  }else if("coxph_coefficient" %in% colnames(phen_data)){
+    
+    return(c("coxph_coefficient"))
+    
+  }else{
+    
+    print_log("No valid statistical test could be found in data. Aborting...")
+    stop("No valid statistical test could be found in data. Aborting...")
+    
+  }
+  
+}
 
 # Compute number of shared markers
 shared_markers <- function(phen1,phen2){
@@ -15,6 +37,22 @@ compensated_shared_markers <- function(phen1,phen2){
   p1_have_maker <- phen1 > -1
   p2_have_maker <- phen2 > -1
   return(sum(phen1==phen2 & p1_have_maker & p2_have_maker )/(sum(p1_have_maker)+sum(p2_have_maker)))
+}
+
+get_phen_order_factor <- function(phen_data,st_test_cols, n_threads = 1){
+  
+  if(length(st_test_cols) == 1){
+    phen_order_factor <- -normalize_vals(unlist(phen_data[,st_test_cols]))
+  }else{
+    phen_order_factor <- matrix(unlist(parallel::mclapply(phen_data[,st_test_cols], function(st_col) normalize_vals(st_col), mc.cores = n_threads)),ncol = length(st_test_cols))
+    
+    phen_order_factor_list <- parallel::mclapply(seq_len(nrow(phen_order_factor)), function(i) phen_order_factor[i,], mc.cores = n_threads)
+    
+    phen_order_factor <- -unlist(parallel::mclapply(phen_order_factor_list, function(row) prod(row), mc.cores = n_threads))
+  }
+  
+  return(phen_order_factor)
+  
 }
 
 
@@ -36,16 +74,19 @@ get_independent_relevant_phenotypes <- function(phen_data,
                                                 min_confidence = 0.5,
                                                 n_threads = 1
 ){
+
+  st_test_cols <- get_statistical_test(phen_data)
   
   markers <- channel_data$Marker
   
-  sample_ids <- colnames(phen_data)[(length(markers)+1):(ncol(phen_data)-3)]
+  sample_ids <- colnames(phen_data)[(length(markers)+1):(ncol(phen_data)-(length(st_test_cols)+1))]
   
 
   if(n_phenotypes < nrow(phen_data)){
     # Sort phenotypes by abs(effect size) and p-val and keep first n_phenotype ones
     print_log("Getting first ",n_phenotypes, " most relevant phenotypes...")
-    phen_order_factor <- -(normalize_vals(unlist(phen_data[,"log2foldChange"]))*normalize_vals(unlist(phen_data[,"effect_size"])))
+    
+    phen_order_factor <- get_phen_order_factor(phen_data,st_test_cols,n_threads)
     phen_data <- phen_data[order(phen_order_factor),]
     phen_data <- phen_data[1:n_phenotypes,]
     rownames(phen_data) <- 1:n_phenotypes
@@ -53,10 +94,16 @@ get_independent_relevant_phenotypes <- function(phen_data,
   }
   
   
+  marker_list <- as.matrix(phen_data[,markers])
   
-  phen_data$n_markers <- unlist(parallel::mclapply(1:nrow(phen_data), function(i) count_markers(as.numeric(phen_data[i, markers])), mc.cores = n_threads))
+  marker_list <- parallel::mclapply(seq_len(nrow(marker_list)), function(i) marker_list[i,], mc.cores = n_threads)
   
-  phen_order_factor <- -(normalize_vals(unlist(phen_data[,"log2foldChange"]))*normalize_vals(unlist(phen_data[,"effect_size"])))
+  phen_data$n_markers <- unlist(parallel::mclapply(marker_list, function(phen_markers) count_markers(phen_markers), mc.cores = n_threads))
+  
+  rm(marker_list)
+  gc(full = TRUE,verbose = FALSE)
+  
+  phen_order_factor <- get_phen_order_factor(phen_data,st_test_cols,n_threads)
   
   
   # Generate adjacency matrix based on marker distance
@@ -141,7 +188,7 @@ get_independent_relevant_phenotypes <- function(phen_data,
   final_phenotypes$Confidence <- cluster_top_phenotypes$Confidence
   final_phenotypes$Phenotype <- cluster_top_phenotypes$Phenotype
   
-  final_phenotypes <- final_phenotypes[, c("Phenotype","n_markers","effect_size","log2foldChange","p_value","Confidence",sample_ids)]
+  final_phenotypes <- final_phenotypes[, c("Phenotype","n_markers",st_test_cols,"p_value","Confidence",sample_ids)]
   
   return(final_phenotypes)
   
