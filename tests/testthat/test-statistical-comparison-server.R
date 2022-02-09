@@ -41,17 +41,17 @@ test_that("Perform statistical comparison correctly", {
   relevant_phenotypes <- read.csv(file.path(tmp_folder,"significant_phenotypes.csv"))
   
   
-  expect_equal(nrow(relevant_phenotypes), 80)
+  expect_equal(nrow(relevant_phenotypes), 81)
   expect_equal(ncol(relevant_phenotypes),n_markers+n_samples+3)
   
-  expect_true(all(relevant_phenotypes[1:20,"effect_size"] == 0))
-  expect_true(all(relevant_phenotypes[1:20,"log2FoldChange"] == 0))
+  expect_true(all(relevant_phenotypes[2:21,"effect_size"] == 0))
+  expect_true(all(relevant_phenotypes[2:21,"log2FoldChange"] == 0))
   
-  expect_true(all(relevant_phenotypes[21:50,"effect_size"] == 1))
-  expect_true(all(relevant_phenotypes[21:50,"log2FoldChange"] == 1))
+  expect_true(all(relevant_phenotypes[22:51,"effect_size"] == 1))
+  expect_true(all(relevant_phenotypes[22:51,"log2FoldChange"] == 1))
   
-  expect_true(all(relevant_phenotypes[51:80,"effect_size"] == -1))
-  expect_true(all(relevant_phenotypes[51:80,"log2FoldChange"] == -1))
+  expect_true(all(relevant_phenotypes[52:81,"effect_size"] == -1))
+  expect_true(all(relevant_phenotypes[52:81,"log2FoldChange"] == -1))
   
 })
 
