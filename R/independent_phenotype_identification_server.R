@@ -19,6 +19,7 @@
 #' @param parent_phen Parent phenotype to filter for. All phenotypes in the output will contain the parent phenotype.
 #' @param n_phenotypes maximum number of phenotypes to be considered from \code{phen_data} filtered by lowest p-values. Default: 1000.
 #' @param min_confidence Minimal confidence threshold to filter output. Default: 0.5.
+#' #' @param parent_phen Parent phenotype to filter for. All phenotypes in the output will contain the parent phenotype.
 #' @param n_threads Number of threads to be used. Default: 1.
 #' @param verbose If TRUE, print outputs from log to stdout.
 #' 
@@ -33,6 +34,7 @@ get_independent_relevant_phenotypes_server <- function(output_folder,
                                                        log_file = "independent_phenotypes.log",
                                                        n_phenotypes = 1000,
                                                        min_confidence = 0.5,
+                                                       max_pval = NULL,
                                                        n_threads = 1,
                                                        verbose = FALSE
 ){
@@ -59,6 +61,7 @@ get_independent_relevant_phenotypes_server <- function(output_folder,
                                                           channel_data,
                                                           n_phenotypes = n_phenotypes,
                                                           min_confidence = min_confidence,
+                                                          max_pval = max_pval,
                                                           n_threads = n_threads
                                                           )
   

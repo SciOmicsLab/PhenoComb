@@ -13,6 +13,7 @@ get_independent_relevant_phenotypes_server(
   log_file = "independent_phenotypes.log",
   n_phenotypes = 1000,
   min_confidence = 0.5,
+  max_pval = NULL,
   n_threads = 1,
   verbose = FALSE
 )
@@ -26,13 +27,14 @@ get_independent_relevant_phenotypes_server(
 
 \item{n_phenotypes}{maximum number of phenotypes to be considered from \code{phen_data} filtered by lowest p-values. Default: 1000.}
 
-\item{min_confidence}{Minimal confidence threshold to filter output. Default: 0.5.}
+\item{min_confidence}{Minimal confidence threshold to filter output. Default: 0.5.
+#' @param parent_phen Parent phenotype to filter for. All phenotypes in the output will contain the parent phenotype.}
+
+\item{max_pval}{Maximum p-value. Used to filter phenotypes in final output.}
 
 \item{n_threads}{Number of threads to be used. Default: 1.}
 
 \item{verbose}{If TRUE, print outputs from log to stdout.}
-
-\item{max_pval}{Maximum p-value. Used to filter phenotypes in final output.}
 
 \item{parent_phen}{Parent phenotype to filter for. All phenotypes in the output will contain the parent phenotype.}
 }

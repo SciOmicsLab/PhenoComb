@@ -65,6 +65,7 @@ get_phen_order_factor <- function(phen_data,st_test_cols, n_threads = 1){
 #' @param channel_data Data.Frame containing columns named: Channel, Marker, T1, [T2, T3, ... , Tn], [OOB].
 #' @param n_phenotypes maximum number of phenotypes to be considered from \code{phen_data} filtered by lowest p-values. Default: 1000.
 #' @param min_confidence Minimal confidence threshold to filter output. Default: 0.5.
+#' @param max_pval Apply a p-value filter before computing independent phenotypes.
 #' @param n_threads Number of threads to be used. Default: 1.
 #' 
 #' @export
@@ -72,6 +73,7 @@ get_independent_relevant_phenotypes <- function(phen_data,
                                                 channel_data,
                                                 n_phenotypes = 1000,
                                                 min_confidence = 0.5,
+                                                max_pval = NULL,
                                                 n_threads = 1
 ){
 
@@ -80,6 +82,25 @@ get_independent_relevant_phenotypes <- function(phen_data,
   markers <- channel_data$Marker
   
   sample_ids <- colnames(phen_data)[(length(markers)+1):(ncol(phen_data)-(length(st_test_cols)+1))]
+  
+  if(!is.null(max_pval)){
+  
+    print_log("Filtering phenotypes with p-value equal or less than ",max_pval, " ...")
+    
+    pval_filter <- unlist(parallel::mclapply(1:nrow(phen_data), function(i) phen_data[i,"p_value"] <= max_pval, mc.cores = n_threads))
+    
+    phen_data <- phen_data[pval_filter, ]
+    
+    print_log(nrow(phen_data), " left after p-value filtering.")
+    
+    if(nrow(phen_data) == 0){
+      
+      print_log("Terminating.")
+      return(NULL)
+    }
+    
+  }
+  
   
 
   if(n_phenotypes < nrow(phen_data)){

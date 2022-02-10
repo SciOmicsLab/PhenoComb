@@ -9,6 +9,7 @@ get_independent_relevant_phenotypes(
   channel_data,
   n_phenotypes = 1000,
   min_confidence = 0.5,
+  max_pval = NULL,
   n_threads = 1
 )
 }
@@ -20,6 +21,8 @@ get_independent_relevant_phenotypes(
 \item{n_phenotypes}{maximum number of phenotypes to be considered from \code{phen_data} filtered by lowest p-values. Default: 1000.}
 
 \item{min_confidence}{Minimal confidence threshold to filter output. Default: 0.5.}
+
+\item{max_pval}{Apply a p-value filter before computing independent phenotypes.}
 
 \item{n_threads}{Number of threads to be used. Default: 1.}
 }
