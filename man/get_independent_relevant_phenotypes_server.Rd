@@ -8,11 +8,9 @@ get_independent_relevant_phenotypes_server(
   output_folder,
   channel_file,
   sample_file,
-  groups_column,
-  g1,
-  g2,
-  max_pval = 0.05,
-  parent_phen = NULL,
+  input_significant_phenotypes = "significant_phenotypes.csv",
+  output_file = "independent_phenotypes.csv",
+  log_file = "independent_phenotypes.log",
   n_phenotypes = 1000,
   min_confidence = 0.5,
   n_threads = 1,
@@ -26,16 +24,6 @@ get_independent_relevant_phenotypes_server(
 
 \item{sample_file}{Path to a ".csv" file containing a Sample_ID column and additional grouping columns for the samples.}
 
-\item{groups_column}{Column name in \code{sample_data} where group identifications are stored.}
-
-\item{g1}{Group label or vector with group labels for first group.}
-
-\item{g2}{Group label or vector with group labels for second group.}
-
-\item{max_pval}{Maximum p-value. Used to filter phenotypes in final output.}
-
-\item{parent_phen}{Parent phenotype to filter for. All phenotypes in the output will contain the parent phenotype.}
-
 \item{n_phenotypes}{maximum number of phenotypes to be considered from \code{phen_data} filtered by lowest p-values. Default: 1000.}
 
 \item{min_confidence}{Minimal confidence threshold to filter output. Default: 0.5.}
@@ -43,6 +31,10 @@ get_independent_relevant_phenotypes_server(
 \item{n_threads}{Number of threads to be used. Default: 1.}
 
 \item{verbose}{If TRUE, print outputs from log to stdout.}
+
+\item{max_pval}{Maximum p-value. Used to filter phenotypes in final output.}
+
+\item{parent_phen}{Parent phenotype to filter for. All phenotypes in the output will contain the parent phenotype.}
 }
 \value{
 Output is saved to file.

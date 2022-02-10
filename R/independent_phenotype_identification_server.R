@@ -15,9 +15,6 @@
 #' @param output_folder Path to folder where output files from this and previous steps should be saved.
 #' @param channel_file Path to a ".csv" file containing columns named: Channel, Marker, T1, [T2, T3, ... , Tn], [OOB].
 #' @param sample_file Path to a ".csv" file containing a Sample_ID column and additional grouping columns for the samples.
-#' @param groups_column Column name in \code{sample_data} where group identifications are stored.
-#' @param g1 Group label or vector with group labels for first group.
-#' @param g2 Group label or vector with group labels for second group.
 #' @param max_pval Maximum p-value. Used to filter phenotypes in final output.
 #' @param parent_phen Parent phenotype to filter for. All phenotypes in the output will contain the parent phenotype.
 #' @param n_phenotypes maximum number of phenotypes to be considered from \code{phen_data} filtered by lowest p-values. Default: 1000.
@@ -31,11 +28,9 @@
 get_independent_relevant_phenotypes_server <- function(output_folder,
                                                        channel_file,
                                                        sample_file,
-                                                       groups_column,
-                                                       g1,
-                                                       g2,
-                                                       max_pval = 0.05,
-                                                       parent_phen = NULL,
+                                                       input_significant_phenotypes = "significant_phenotypes.csv",
+                                                       output_file = "independent_phenotypes.csv",
+                                                       log_file = "independent_phenotypes.log",
                                                        n_phenotypes = 1000,
                                                        min_confidence = 0.5,
                                                        n_threads = 1,
@@ -45,9 +40,9 @@ get_independent_relevant_phenotypes_server <- function(output_folder,
   
   
   
-  filtered_phenotypes_file <- paste("significant_phenotypes_",ifelse(!is.null(parent_phen),paste("parent_",parent_phen,"_",sep=""),""),groups_column,"_",g1,"_vs_",g2,"_pval_",max_pval,".csv",collapse = "",sep="")
-  final_phenotypes_file <- paste("independent_significant_phenotypes_",ifelse(!is.null(parent_phen),paste("parent_",parent_phen,"_",sep=""),""),groups_column,"_",g1,"_vs_",g2,"_pval_",max_pval,".csv",collapse = "",sep="")
-  log_file <- paste("independent_significant_phenotypes_",ifelse(!is.null(parent_phen),paste("parent_",parent_phen,"_",sep=""),""),groups_column,"_",g1,"_vs_",g2,"_pval_",max_pval,".log",collapse = "",sep="")
+  filtered_phenotypes_file <- input_significant_phenotypes
+  final_phenotypes_file <- output_file
+  log_file <- log_file
   
   # Start logging
   
