@@ -118,7 +118,7 @@ survival_test <- function(correlates, survival_times, status){
 
   rm(test_data)
   
-  return(c(surv_test$coefficients[1],surv_test$sctest[3]))
+  return(c((surv_test$coefficients[1]/mean(correlates)),surv_test$sctest[3]))
   
 }
 
