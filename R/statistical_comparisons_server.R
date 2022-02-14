@@ -269,6 +269,8 @@ statistically_relevant_phenotypes_server <- function(output_folder,
           
           if(last_phenotype_filtered){ #If chunk information found
             
+            last_phenotype_filtered <- last_phenotype_filtered - 1
+            
             continued <- TRUE
             
             start_log(log_path = file.path(output_folder,log_file), append = TRUE, verbose = verbose)
