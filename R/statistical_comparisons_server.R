@@ -96,7 +96,7 @@ memory_safe_compute_statistically_relevant_phenotypes <- function(output_folder,
       last_line <- total_lines
     }
     
-    start_line <- (i-1)*chunk_size+start_from+2
+    start_line <- (i-1)*chunk_size+start_from+1
     
     print_log("Reading phenotypes from ",format(start_line, scientific = F), " to ",format(last_line, scientific = F))
     
