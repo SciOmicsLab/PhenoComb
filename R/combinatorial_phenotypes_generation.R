@@ -249,7 +249,7 @@ combinatorial_phenotype_counts <- function(processed_cell_data,
   n_markers <- length(markers)
   
   # Get Sample IDs
-  sample_ids <- unique(unique_phen[,"Sample_ID"])
+  sample_ids <- unique(processed_cell_data[,"Sample_ID"])
   
   
   
