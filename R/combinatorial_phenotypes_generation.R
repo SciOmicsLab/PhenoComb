@@ -133,7 +133,7 @@ process_cell_data <- function(cell_data, channel_data, sample_data, sampleID_col
 
 
 # Return unique phenotypes with cell count by Sample_ID
-get_unique_phenotype_counts <- function(processed_cell_data, min_count = 0, sample_percentage_min_counts = 0.0, efficient = TRUE, n_threads = 1){
+get_unique_phenotype_counts <- function(processed_cell_data, min_count = 0, sample_fraction_min_counts = 0.0, efficient = TRUE, n_threads = 1){
   
   unique_phen <- as.data.frame(dplyr::ungroup(dplyr::summarise(dplyr::group_by_all(processed_cell_data), Count = dplyr::n())))
   
@@ -142,8 +142,8 @@ get_unique_phenotype_counts <- function(processed_cell_data, min_count = 0, samp
   
   n_samples <- length(sample_ids)
   
-  if(sample_percentage_min_counts <= 1/n_samples){
-    sample_percentage_min_counts <- 1/n_samples
+  if(sample_fraction_min_counts <= 1/n_samples){
+    sample_fraction_min_counts <- 1/n_samples
   }
   
   unique_phen <- parallel::mclapply(sample_ids, function(id) {
@@ -165,13 +165,13 @@ get_unique_phenotype_counts <- function(processed_cell_data, min_count = 0, samp
     # Remove phenotypes where all samples have less then min_count cells
     if(min_count > 0){
       
-      print_log("Removing phenotypes where ",format(round(sample_percentage_min_counts*100, 2), nsmall = 2),"% of the samples have at least ",min_count," cell(s) using ",n_threads," thread(s)...")
+      print_log("Removing phenotypes where ",format(round(sample_fraction_min_counts*100, 2), nsmall = 2),"% of the samples have at least ",min_count," cell(s) using ",n_threads," thread(s)...")
       
       counts_list <- as.matrix(unique_phen[,sample_ids])
       
       counts_list <- parallel::mclapply(seq_len(nrow(counts_list)), function(i) counts_list[i,], mc.cores = n_threads)
       
-      cell_filter <- unlist(parallel::mclapply(counts_list, function(row) (sum(row >= min_count)/n_samples) >= sample_percentage_min_counts, mc.cores = n_threads))
+      cell_filter <- unlist(parallel::mclapply(counts_list, function(row) (sum(row >= min_count)/n_samples) >= sample_fraction_min_counts, mc.cores = n_threads))
       
       unique_phen <- unique_phen[cell_filter,]
       
@@ -223,7 +223,7 @@ generate_marker_combinations <- function(n_markers, max_phenotype_length = 0, lo
 #' Use function \code{process_cell_data} to generate this input.
 #' @param parent_phen Parent phenotype to filter for. All phenotypes generated will contain the parent phenotype.
 #' @param min_count Minimum number of cells that a phenotype must have for at least one sample.
-#' @param sample_percentage_min_counts Fraction of samples that must have at least \code{min_count} cells. Value forced to minimum of 1/n_samples.
+#' @param sample_fraction_min_counts Fraction of samples that must have at least \code{min_count} cells (value between 0 ~ 1). Value forced to minimum of 1/n_samples.
 #' @param max_phenotype_length Maximum length of markers to compose a phenotype.
 #' @param efficient If TRUE, filter full-length phenotypes for \code{min_count} condition before generating all marker combinations.
 #' It is less sensitive for very rare phenotypes but yields a great boost in performance.
@@ -235,7 +235,7 @@ generate_marker_combinations <- function(n_markers, max_phenotype_length = 0, lo
 combinatorial_phenotype_counts <- function(processed_cell_data,
                                            parent_phen = NULL,
                                            min_count = 10,
-                                           sample_percentage_min_counts = 0.0,
+                                           sample_fraction_min_counts = 0.0,
                                            max_phenotype_length = 0,
                                            efficient = FALSE,
                                            n_threads = 1
@@ -248,10 +248,17 @@ combinatorial_phenotype_counts <- function(processed_cell_data,
   # Number of markers
   n_markers <- length(markers)
   
+  # Get Sample IDs
+  sample_ids <- unique(unique_phen[,"Sample_ID"])
+  
+  
+  
+  # Number of samples
+  n_samples <- length(sample_ids)
   
   # Get unique phenotypes for each sample and their counts
   print_log("Getting unique phenotypes from ",nrow(processed_cell_data)," cells...")
-  unique_phen <- get_unique_phenotype_counts(processed_cell_data, min_count, sample_percentage_min_counts, efficient, n_threads)
+  unique_phen <- get_unique_phenotype_counts(processed_cell_data, min_count, sample_fraction_min_counts, efficient, n_threads)
   
   # Create all combination of markers
   
@@ -294,6 +301,20 @@ combinatorial_phenotype_counts <- function(processed_cell_data,
     # Remove phenotypes where all samples have less then min_count cells
     if(min_count>0){
       print_log("Removing phenotypes where all samples have less than ",min_count," cell(s) using ",n_threads," thread(s)...")
+      
+      if(sample_fraction_min_counts <= 1/n_samples){
+        sample_fraction_min_counts <- 1/n_samples
+      }
+      
+      counts_list <- as.matrix(combinatorial_phenotypes[,samples_id])
+      
+      counts_list <- parallel::mclapply(seq_len(nrow(counts_list)), function(i) counts_list[i,], mc.cores = n_threads)
+      
+      cell_filter <- unlist(parallel::mclapply(counts_list, function(row) (sum(row >= min_count)/n_samples) >= sample_fraction_min_counts, mc.cores = n_threads))
+      
+      combinatorial_phenotypes <- combinatorial_phenotypes[cell_filter,]
+      
+      rm(counts_list, cell_filter)
       
       combinatorial_phenotypes <- combinatorial_phenotypes[!unlist(parallel::mclapply(1:nrow(combinatorial_phenotypes), function(i) all(combinatorial_phenotypes[i,samples_id] < min_count), mc.cores = n_threads)),]
       
