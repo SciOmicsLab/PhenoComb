@@ -29,6 +29,7 @@ memory_safe_combinatorial_phenotype_counts <- function(unique_phenotype_counts,
                                                        parent_phen = NULL,
                                                        max_phenotype_length = 0,
                                                        min_count = 10,
+                                                       sample_percentage_min_counts = 0.0,
                                                        start_from = 1,
                                                        max_ram = 0,
                                                        efficient = TRUE,
@@ -40,6 +41,12 @@ memory_safe_combinatorial_phenotype_counts <- function(unique_phenotype_counts,
   # Get markers names and sample IDs
   markers <- head(colnames(unique_phenotype_counts),n_markers)
   samples_id <- tail(colnames(unique_phenotype_counts),ncol(unique_phenotype_counts)-n_markers)
+  
+  n_samples <- length(samples_id)
+  
+  if(sample_percentage_min_counts <= 1/n_samples){
+    sample_percentage_min_counts <- 1/n_samples
+  }
   
   total_combinations <- 2^n_markers
   
@@ -163,8 +170,18 @@ memory_safe_combinatorial_phenotype_counts <- function(unique_phenotype_counts,
       if(!efficient){
         # Remove phenotypes where all samples have less then min_count cells
         if(min_count>0){
-          print_log("Removing phenotypes where all samples have less than ",min_count," cell(s) using ",n_threads," thread(s)...")
-          combinatorial_phenotypes <- combinatorial_phenotypes[unlist(parallel::mclapply(1:nrow(combinatorial_phenotypes), function(j) !all(combinatorial_phenotypes[j,samples_id] < min_count), mc.cores = n_threads)),]
+          print_log("Removing phenotypes where ",format(round(sample_percentage_min_counts*100, 2), nsmall = 2),"% of the samples have at least ",min_count," cell(s) using ",n_threads," thread(s)...")
+          
+          counts_list <- as.matrix(combinatorial_phenotypes[,samples_id])
+          
+          counts_list <- parallel::mclapply(seq_len(nrow(counts_list)), function(i) counts_list[i,], mc.cores = n_threads)
+          
+          cell_filter <- unlist(parallel::mclapply(counts_list, function(row) (sum(row >= min_count)/n_samples) >= sample_percentage_min_counts, mc.cores = n_threads))
+          
+          combinatorial_phenotypes <- combinatorial_phenotypes[cell_filter,]
+          
+          rm(counts_list, cell_filter)
+          
           print_log(nrow(combinatorial_phenotypes)," phenotypes left...")
           
         }
@@ -239,6 +256,7 @@ find_last_marker_combination_computed <- function(log_file){
 #' @param output_folder Path to folder where outputs and temporary files should be saved.
 #' @param parent_phen Parent phenotype to filter for. All phenotypes generated will contain the parent phenotype.
 #' @param min_count Minimum number of cells that a phenotype must have for at least one sample.
+#' @param sample_percentage_min_counts Fraction of samples that must have at least \code{min_count} cells. Value forced to minimum of 1/n_samples.
 #' @param max_phenotype_length Maximum length of markers to compose a phenotype.
 #' @param sample_ID_col Name of the column in \code{cell_data} where the Sample IDs are stored. Default: "Sample_ID".
 #' @param save_cell_data If TRUE, processed cell data is saved to "output_folder/cell_data.csv".
@@ -258,6 +276,7 @@ combinatorial_phenotype_counts_server <- function(cell_file,
                                                   output_folder,
                                                   parent_phen = NULL,
                                                   min_count = 10,
+                                                  sample_percentage_min_counts = 0.0,
                                                   max_phenotype_length = 0,
                                                   sampleID_col = "Sample_ID",
                                                   save_cell_data = TRUE,
@@ -319,6 +338,7 @@ combinatorial_phenotype_counts_server <- function(cell_file,
                                                         parent_phen = parent_phen,
                                                         max_phenotype_length = max_phenotype_length,
                                                         min_count = min_count,
+                                                        sample_percentage_min_counts = sample_percentage_min_counts,
                                                         start_from = last_marker_combination+1,
                                                         max_ram = max_ram,
                                                         efficient = efficient,
@@ -404,7 +424,7 @@ combinatorial_phenotype_counts_server <- function(cell_file,
     # Get unique phenotypes for each sample and their counts
     print_log("Getting unique phenotypes from ",nrow(cell_data)," cells...")
     
-    unique_phen <- get_unique_phenotype_counts(cell_data, min_count, efficient, n_threads)
+    unique_phen <- get_unique_phenotype_counts(cell_data, min_count, sample_percentage_min_counts, efficient, n_threads)
     
     rm(cell_data)
     
@@ -425,6 +445,7 @@ combinatorial_phenotype_counts_server <- function(cell_file,
                                                parent_phen = parent_phen,
                                                max_phenotype_length = max_phenotype_length,
                                                min_count = min_count,
+                                               sample_percentage_min_counts = sample_percentage_min_counts,
                                                max_ram = max_ram,
                                                efficient = efficient,
                                                n_threads = n_threads
