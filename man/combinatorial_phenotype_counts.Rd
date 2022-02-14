@@ -8,7 +8,7 @@ combinatorial_phenotype_counts(
   processed_cell_data,
   parent_phen = NULL,
   min_count = 10,
-  sample_percentage_min_counts = 0,
+  sample_fraction_min_counts = 0,
   max_phenotype_length = 0,
   efficient = FALSE,
   n_threads = 1
@@ -23,7 +23,7 @@ Use function \code{process_cell_data} to generate this input.}
 
 \item{min_count}{Minimum number of cells that a phenotype must have for at least one sample.}
 
-\item{sample_percentage_min_counts}{Fraction of samples that must have at least \code{min_count} cells. Value forced to minimum of 1/n_samples.}
+\item{sample_fraction_min_counts}{Fraction of samples that must have at least \code{min_count} cells (value between 0 ~ 1). Value forced to minimum of 1/n_samples.}
 
 \item{max_phenotype_length}{Maximum length of markers to compose a phenotype.}
 
