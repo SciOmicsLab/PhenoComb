@@ -109,8 +109,14 @@ memory_safe_combinatorial_phenotype_counts <- function(unique_phenotype_counts,
   
   print_log("--------------------------------------------")
   
+  no_combinations_left_counter <- 0
   
   while(TRUE){
+    
+    if(no_combinations_left_counter >= 100){
+      print_log("No combinations found on last 100 chunks, terminating.")  
+      break
+    }
     
     if(last_comb == total_combinations) break
     
@@ -135,6 +141,7 @@ memory_safe_combinatorial_phenotype_counts <- function(unique_phenotype_counts,
     # Skip chunk if no phenotype has less than max_phenotype_length
     if(nrow(current_marker_combinations)){
       
+      no_combinations_left_counter <- 0
       
       colnames(current_marker_combinations) <- markers
       
@@ -197,6 +204,7 @@ memory_safe_combinatorial_phenotype_counts <- function(unique_phenotype_counts,
       
     }else{
       print_log("No combinations left...")
+      no_combinations_left_counter <- no_combinations_left_counter + 1
     }
     
     
