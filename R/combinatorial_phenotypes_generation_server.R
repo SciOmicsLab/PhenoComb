@@ -33,6 +33,7 @@ memory_safe_combinatorial_phenotype_counts <- function(unique_phenotype_counts,
                                                        start_from = 1,
                                                        max_ram = 0,
                                                        efficient = TRUE,
+                                                       max_empty_chunks = 1000,
                                                        n_threads = 1
 ){
   
@@ -113,8 +114,8 @@ memory_safe_combinatorial_phenotype_counts <- function(unique_phenotype_counts,
   
   while(TRUE){
     
-    if(no_combinations_left_counter >= 1000){
-      print_log("No combinations found on last 100 chunks, terminating.")  
+    if(no_combinations_left_counter >= max_empty_chunks){
+      print_log("No combinations found on last ",max_empty_chunks," chunks, terminating.")  
       break
     }
     
@@ -272,6 +273,7 @@ find_last_marker_combination_computed <- function(log_file){
 #' @param max_ram Maximum ram memory in Gb to be used by the function.
 #' @param efficient If TRUE, filter full-length phenotypes for \code{min_count} condition before generating all marker combinations.
 #' It is less sensitive for very rare phenotypes but yields a great boost in performance.
+#' @param max_empty_chunks Maximum number of chunks with no valid combinations when filtering by \code{max_phenotype_length}.
 #' @param n_threads Number of threads to be used. Default: 1.
 #' @param verbose If TRUE, print outputs from log to stdout.
 #'  
@@ -291,6 +293,7 @@ combinatorial_phenotype_counts_server <- function(cell_file,
                                                   continue = TRUE,
                                                   max_ram = 0,
                                                   efficient = TRUE,
+                                                  max_empty_chunks = 1000,
                                                   n_threads = 1,
                                                   verbose = TRUE
 ){
@@ -350,6 +353,7 @@ combinatorial_phenotype_counts_server <- function(cell_file,
                                                         start_from = last_marker_combination+1,
                                                         max_ram = max_ram,
                                                         efficient = efficient,
+                                                        max_empty_chunks = max_empty_chunks,
                                                         n_threads = n_threads
             )
             
@@ -456,6 +460,7 @@ combinatorial_phenotype_counts_server <- function(cell_file,
                                                sample_fraction_min_counts = sample_fraction_min_counts,
                                                max_ram = max_ram,
                                                efficient = efficient,
+                                               max_empty_chunks = max_empty_chunks,
                                                n_threads = n_threads
     )
     print_log("Combinatorial phenotype cell counting done.")
