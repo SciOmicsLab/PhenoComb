@@ -18,6 +18,7 @@ combinatorial_phenotype_counts_server(
   continue = TRUE,
   max_ram = 0,
   efficient = TRUE,
+  max_empty_chunks = 1000,
   n_threads = 1,
   verbose = TRUE
 )
@@ -47,6 +48,8 @@ combinatorial_phenotype_counts_server(
 
 \item{efficient}{If TRUE, filter full-length phenotypes for \code{min_count} condition before generating all marker combinations.
 It is less sensitive for very rare phenotypes but yields a great boost in performance.}
+
+\item{max_empty_chunks}{Maximum number of chunks with no valid combinations when filtering by \code{max_phenotype_length}.}
 
 \item{n_threads}{Number of threads to be used. Default: 1.}
 

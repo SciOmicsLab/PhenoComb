@@ -113,7 +113,7 @@ memory_safe_combinatorial_phenotype_counts <- function(unique_phenotype_counts,
   
   while(TRUE){
     
-    if(no_combinations_left_counter >= 100){
+    if(no_combinations_left_counter >= 1000){
       print_log("No combinations found on last 100 chunks, terminating.")  
       break
     }
