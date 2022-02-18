@@ -439,6 +439,7 @@ combinatorial_phenotype_counts_server <- function(cell_file,
     unique_phen <- get_unique_phenotype_counts(cell_data, min_count, sample_fraction_min_counts, efficient, n_threads)
     
     rm(cell_data)
+    gc(full = TRUE,verbose = FALSE)
     
     # Saving unique phenotypes for eventual continuation
     if(continue){
