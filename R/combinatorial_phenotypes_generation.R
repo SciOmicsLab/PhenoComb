@@ -203,9 +203,20 @@ generate_marker_combinations <- function(n_markers, max_phenotype_length = 0, lo
   
   if(max_phenotype_length > 0 & max_phenotype_length < n_markers){
     
-    local_marker_comb <- local_marker_comb[unlist(parallel::mclapply(1:nrow(local_marker_comb),
-                                                                     function(i) (n_markers-sum(local_marker_comb[i,])) <= max_phenotype_length,
-                                                                     mc.cores = n_threads)),]
+    comb_list <- as.matrix(local_marker_comb)
+    
+    comb_list <- parallel::mclapply(seq_len(nrow(comb_list)), function(i) comb_list[i,], mc.cores = n_threads)
+    
+    comb_filter <- unlist(parallel::mclapply(comb_list, function(row) (n_markers-sum(row)) <= max_phenotype_length,
+                                             mc.cores = n_threads))
+    
+    local_marker_comb <- local_marker_comb[comb_filter,]
+    
+    rm(comb_list, comb_filter)
+    
+    # local_marker_comb <- local_marker_comb[unlist(parallel::mclapply(1:nrow(local_marker_comb),
+    #                                                                  function(i) (n_markers-sum(local_marker_comb[i,])) <= max_phenotype_length,
+    #                                                                  mc.cores = n_threads)),]
   }
   
   return(local_marker_comb)
