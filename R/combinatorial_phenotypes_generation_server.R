@@ -438,8 +438,7 @@ combinatorial_phenotype_counts_server <- function(cell_file,
     
     unique_phen <- get_unique_phenotype_counts(cell_data, min_count, sample_fraction_min_counts, efficient, n_threads)
     
-    rm(cell_data)
-    gc(full = TRUE,verbose = FALSE)
+    
     
     # Saving unique phenotypes for eventual continuation
     if(continue){
@@ -447,6 +446,9 @@ combinatorial_phenotype_counts_server <- function(cell_file,
       saveRDS(list(n_markers = nrow(channel_data), unique_phenotypes =  unique_phen), file.path(output_folder,unique_phen_file))
       print_log("Saving done.")  
     }
+    
+    rm(cell_data)
+    gc(full = TRUE,verbose = FALSE)
     
     # Create phenotype counting file
     file.create(file.path(output_folder,phenotype_counts_file), overrite = TRUE)
