@@ -425,18 +425,20 @@ combinatorial_phenotype_counts_server <- function(cell_file,
     
     print_log("Processing FCS data...")
     
-    cell_data <- process_cell_data(cell_data, channel_data, sample_data, sampleID_col = sampleID_col, n_threads = n_threads)
+    processed_cell_data <- process_cell_data(cell_data, channel_data, sample_data, sampleID_col = sampleID_col, n_threads = n_threads)
+    
+    rm(cell_data)
     
     if(save_cell_data){
       print_log("Saving cell data to ",file.path(output_folder,cell_data_file))
-      data.table::fwrite(cell_data,file.path(output_folder,cell_data_file))
+      data.table::fwrite(processed_cell_data,file.path(output_folder,cell_data_file))
       print_log("Writing done.")
     }
     
     # Get unique phenotypes for each sample and their counts
-    print_log("Getting unique phenotypes from ",nrow(cell_data)," cells...")
+    print_log("Getting unique phenotypes from ",nrow(processed_cell_data)," cells...")
     
-    unique_phen <- get_unique_phenotype_counts(cell_data, min_count, sample_fraction_min_counts, efficient, n_threads)
+    unique_phen <- get_unique_phenotype_counts(processed_cell_data, min_count, sample_fraction_min_counts, efficient, n_threads)
     
     
     
@@ -447,7 +449,7 @@ combinatorial_phenotype_counts_server <- function(cell_file,
       print_log("Saving done.")  
     }
     
-    rm(cell_data)
+    rm(processed_cell_data)
     gc(full = TRUE,verbose = FALSE)
     
     # Create phenotype counting file
