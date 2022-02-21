@@ -193,17 +193,19 @@ generate_marker_combinations <- function(n_markers, max_phenotype_length = 0, lo
   
   local_marker_comb <- as.data.frame(RcppAlgos::permuteGeneral(c(1,0), n_markers, repetition = TRUE,
                                       lower = lower,
-                                      upper = upper,
+                                      upper = upper
                                       ))
+
   
   # KNOWN BUG
   # if last command returns only one combination
   # will probably produce a "argument of length 0" error
   
   if(max_phenotype_length > 0 & max_phenotype_length < n_markers){
+    
     local_marker_comb <- local_marker_comb[unlist(parallel::mclapply(1:nrow(local_marker_comb),
                                                                      function(i) (n_markers-sum(local_marker_comb[i,])) <= max_phenotype_length,
-                                                                     mc.cores = n_threads)),]  
+                                                                     mc.cores = n_threads)),]
   }
   
   return(local_marker_comb)
