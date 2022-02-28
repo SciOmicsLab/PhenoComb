@@ -200,6 +200,9 @@ memory_safe_combinatorial_phenotype_counts <- function(unique_phenotype_counts,
       
       data.table::fwrite(data.table::as.data.table(combinatorial_phenotypes), dump_file, append = append_output, nThread = n_threads)
       
+      #TODO change order of logging to print number of written phenotypes after finishing writing to avoid misslogging if process break during writing.
+      
+      
       # To continue appending to file
       append_output <- TRUE
       
