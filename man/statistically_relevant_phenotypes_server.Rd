@@ -9,6 +9,7 @@ statistically_relevant_phenotypes_server(
   channel_file,
   sample_file,
   input_phenotype_counts = "combinatorial_phenotype_counts.csv",
+  input_phenotype_counts_log = NULL,
   output_file = "significant_phenotypes.csv",
   log_file = "significant_phenotypes.log",
   test_type = "group",
@@ -31,6 +32,16 @@ statistically_relevant_phenotypes_server(
 \item{channel_file}{Path to a ".csv" file containing columns named: Channel, Marker, T1, [T2, T3, ... , Tn], [OOB].}
 
 \item{sample_file}{Path to a ".csv" file containing a Sample_ID column and additional grouping columns for the samples.}
+
+\item{input_phenotype_counts}{Name of the file inside \code{output_folder} with cell counts input. Default: "combinatorial_phenotype_counts.csv"}
+
+\item{input_phenotype_counts_log}{Name of the file inside \code{output_folder} with the cell counts log. Used to
+get the number of phenotypes in \code{input_phenotype_counts} in a faster way. If not provided, number of phenotypes will be
+read from csv file. Might not work for huge files. Default: NULL.}
+
+\item{output_file}{Output file. Default: "significant_phenotypes.csv".}
+
+\item{log_file}{Output log file. Default: "significant_phenotypes.log".}
 
 \item{test_type}{Type of statistical test to be performed. Value can be "group", "correlation", or "survival". Default: "group".
 Additional parameters should be provided accordingly, such as [groups_column, g1, g2] for "group", [correlation_column] for "correlation", 

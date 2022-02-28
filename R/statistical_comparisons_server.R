@@ -6,6 +6,7 @@ memory_safe_compute_statistically_relevant_phenotypes <- function(output_folder,
                                                                   sample_data,
                                                                   channel_data,
                                                                   input_phenotype_counts,
+                                                                  input_phenotype_counts_log,
                                                                   output_file,
                                                                   test_type = "group", # Options: "group", "correlation", "survival"
                                                                   groups_column = NULL,
@@ -36,7 +37,12 @@ memory_safe_compute_statistically_relevant_phenotypes <- function(output_folder,
   
   
   print_log("Getting number of phenotypes in file...")
-  total_lines <- count_csv_lines(phenotype_counts_file_path)
+  if(!is.null(input_phenotype_counts_log)){
+    total_lines <- count_csv_lines(file.path(output_folder,input_phenotype_counts_log))
+  }else{
+    total_lines <- count_csv_lines(phenotype_counts_file_path)  
+  }
+  
   print_log("Number of phenotypes found: ",total_lines)  
   
   total_cells <- data.table::fread(phenotype_counts_file_path, nrows = 2, header= T)
@@ -198,6 +204,12 @@ find_last_phenotype_filtered <- function(log_file){
 #' @param output_folder Path to folder where output files from this and previous steps should be saved.
 #' @param channel_file Path to a ".csv" file containing columns named: Channel, Marker, T1, [T2, T3, ... , Tn], [OOB].
 #' @param sample_file Path to a ".csv" file containing a Sample_ID column and additional grouping columns for the samples.
+#' @param input_phenotype_counts Name of the file inside \code{output_folder} with cell counts input. Default: "combinatorial_phenotype_counts.csv"
+#' @param input_phenotype_counts_log Name of the file inside \code{output_folder} with the cell counts log. Used to
+#' get the number of phenotypes in \code{input_phenotype_counts} in a faster way. If not provided, number of phenotypes will be
+#' read from csv file. Might not work for huge files. Default: NULL.
+#' @param output_file Output file. Default: "significant_phenotypes.csv".
+#' @param log_file Output log file. Default: "significant_phenotypes.log".
 #' @param test_type Type of statistical test to be performed. Value can be "group", "correlation", or "survival". Default: "group".
 #' Additional parameters should be provided accordingly, such as [groups_column, g1, g2] for "group", [correlation_column] for "correlation", 
 #' and [survival_time_column, survival_status_column] for "survival". Parameters not used in the test will be ignored.
@@ -220,6 +232,7 @@ statistically_relevant_phenotypes_server <- function(output_folder,
                                                      channel_file,
                                                      sample_file,
                                                      input_phenotype_counts = "combinatorial_phenotype_counts.csv",
+                                                     input_phenotype_counts_log = NULL,
                                                      output_file = "significant_phenotypes.csv",
                                                      log_file = "significant_phenotypes.log",
                                                      test_type = "group", # Options: "group", "correlation", "survival"
@@ -283,6 +296,7 @@ statistically_relevant_phenotypes_server <- function(output_folder,
                                                                   sample_data,
                                                                   channel_data,
                                                                   input_phenotype_counts,
+                                                                  input_phenotype_counts_log,
                                                                   output_file,
                                                                   test_type, # Options: "group", "correlation", "survival"
                                                                   groups_column,
@@ -335,6 +349,7 @@ statistically_relevant_phenotypes_server <- function(output_folder,
                                                           sample_data,
                                                           channel_data,
                                                           input_phenotype_counts,
+                                                          input_phenotype_counts_log,
                                                           output_file,
                                                           test_type, # Options: "group", "correlation", "survival"
                                                           groups_column,
