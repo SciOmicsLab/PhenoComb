@@ -105,9 +105,44 @@ find_phenotype_in_file <- function(phen_file, phen, markers, n_cores = 1, chunk_
   
 }
 
-# Fast line counting on csv files (not considering the header)
-count_csv_lines <- function(csv_file){
-  as.numeric(system(paste("cat ",csv_file," | wc -l", collapse = ""), intern = TRUE)) - 1
+count_csv_lines <- function(file_path){
+  
+  extension <- tools::file_ext(file_path)
+  
+  if(extension == "csv"){
+    return(wc_count_lines(file_path) - 1)
+  }else if(extension == "log"){
+    return(get_n_phenotypes_log(file_path))
+  }else{
+    stop("File provided must be .csv or .log")
+  }
+  
+}
+
+
+get_n_phenotypes_log <- function(file_path){
+  
+  txt <- readLines(file_path)
+  
+  phenotypes_generated <- 0
+  
+  for(i in 1:length(txt)){
+    
+    if(grepl( "Writing", txt[i], fixed = TRUE)){
+      
+      phenotypes_generated <- phenotypes_generated + as.integer(sub(".*?Writing .*?(\\d+).*", "\\1", txt[i]))
+      
+    }
+    
+  }
+  
+  return(phenotypes_generated)
+  
+}
+
+# Fast line counting
+wc_count_lines <- function(file_path){
+  as.numeric(system(paste("cat ",file_path," | wc -l", collapse = ""), intern = TRUE))
 }
 
 # Normalize numeric vector
