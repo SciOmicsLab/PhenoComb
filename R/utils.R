@@ -130,11 +130,15 @@ get_n_phenotypes_log <- function(file_path){
     
     if(grepl( "Writing", txt[i], fixed = TRUE)){
       
+      if(grepl( "done", txt[i], fixed = TRUE)) next  #Fixing one other log line that thas "writing" word. Can be done more elegantly.
+      
       phenotypes_generated <- phenotypes_generated + as.integer(sub(".*?Writing .*?(\\d+).*", "\\1", txt[i]))
       
     }
     
   }
+  
+  rm(txt)
   
   return(phenotypes_generated)
   
