@@ -45,7 +45,7 @@ memory_safe_compute_statistically_relevant_phenotypes <- function(output_folder,
   
   print_log("Number of phenotypes found: ",total_lines)  
   
-  total_cells <- data.table::fread(phenotype_counts_file_path, nrows = 2, header= T,cmd = paste('head -n 2', phenotype_counts_file_path))
+  total_cells <- data.table::fread(cmd = paste('head -n 2', phenotype_counts_file_path), nrows = 2, header= T)
   header <- colnames(total_cells)
   
   column_types <- as.vector(sapply(total_cells, typeof))
