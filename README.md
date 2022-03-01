@@ -50,6 +50,8 @@ PhenoComb requires three inputs:
 
 Cell Data can be your concatenated FCS file with the channels as columns and fluorescence values as rows for each cell. It must also contain one column with the sample identification. As a default, we suggest a column called "Sample_ID" (not to be confounded with SampleID standard column from FlowJo, **never use that**), but can be called as whatever the user desire.
 
+You can find a step-by-step tutorial to prepare your fcs data using FlowJo [here](docs/FlowJo_tutorial/FlowJo_Tutorial.md).
+
 Example:
 
 | SampleID   | FSC-A  | SSC-A  | FJComp-BL1-A | FJComp-BL3-A | FJComp-RL1-A | FJComp-RL2-A | FJComp-VL1-A | Sample_ID |
