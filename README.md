@@ -1,6 +1,6 @@
 # PhenoComb
 
-An R package for combinatorial analysis of phenotypes
+An R package for combinatorial analysis of phenotypes.
 
 ## Installing PhenoComb
 
@@ -34,7 +34,7 @@ This tutorial is intended to show the basic workflow and features of PhenoComb.
 It has two workflow modes:
 
 -   Local: having all your data in-memory, useful for small datasets (Up to 14 markers recommended).
--   Server: storing all outputs into files, aimed to process large datasets and number of markers.
+-   Server: storing all outputs into files, aimed at processing large datasets and number of markers.
 
 Regardless of the desired workflow, the inputs are the same. However, for the server version, the inputs must be accessed directly from files rather than R objects.
 
@@ -200,7 +200,7 @@ The resulting `data.frame` will have its first column with the phenotype name ge
 
 ### Server Workflow
 
-The server workflow follows the same steps of the local workflow, except that the pre-processing step is incorporated into the Combinatorial Phenotypes Cell Counting step. It will save all the outputs from each step, and also log files, to the desired output folder.
+The server workflow follows the same steps of the local workflow, except that the pre-processing step is incorporated into the Combinatorial Phenotypes Cell Counting step. It will save all the outputs from each step, and also log files, to the desired output folder. It means that the size of the dataset you can analyze is not limited by your computer memory, but by time and disk space for the outputs.
 
 #### Folder Structure
 
@@ -282,7 +282,7 @@ The `output_file` and `log_file` parameters ar optional, but it's a convenience 
 
 #### Independent Phenotypes Filtering
 
-Differently from the previous two steps, this tool **is** limited by your machine's memory. To avoid any memory issues, choose a reasonable number of penotypes to be considered using the `n_phenotypes` option. A reasonable number is 5000 to 10000 phenotypes. They will be selected from the input based on the smallest associated p-values. It will automatically detect the statistical test used in the previous step.
+Differently from the previous two steps, this tool **is** limited by your machine's memory. To avoid any memory issues, choose a reasonable number of phenotypes to be considered using the `n_phenotypes` option. A reasonable number is 5000 to 10000 phenotypes. They will be selected from the input based on the smallest associated p-values. It will automatically detect the statistical test used in the previous step.
 
 The following code snippet will perform the Independent Phenotypes Filtering:
 
