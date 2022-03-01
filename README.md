@@ -130,13 +130,13 @@ library(flowCore)
 cell_data <- as.data.frame(flowCore::read.FCS("/path/to/cell_data.fcs",truncate_max_range = FALSE)@exprs)
 
 # Use this line if your input is a CSV file.
-cell_data <- read.csv("/path/to/cell_data.csv") # comment if it's a .fcs file
+cell_data <- read.csv("/path/to/cell_data.csv")
 
 channel_data <- read.csv("/path/to/channel_data.csv")
 sample_data <- read.csv("/path/to/sample_data.csv")
 ```
 
-All input files must be in accordance with the specified formats described before.
+All input files must be in accordance to the specified formats described before.
 
 #### Data Pre-Processing
 
