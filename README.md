@@ -50,7 +50,16 @@ PhenoComb requires three inputs:
 
 Cell Data can be your concatenated FCS file with the channels as columns and fluorescence values as rows for each cell. It must also contain one column with the sample identification. As a default, we suggest a column called "Sample_ID" (not to be confounded with SampleID standard column from FlowJo, **never use that**), but can be called as whatever the user desire.
 
-EXAMPLE
+Example:
+
+| SampleID   | FSC-A  | SSC-A  | FJComp-BL1-A | FJComp-BL3-A | FJComp-RL1-A | FJComp-RL2-A | FJComp-VL1-A | Sample_ID |
+|------------|--------|--------|--------------|--------------|--------------|--------------|--------------|-----------|
+| 54695.4688 | 345236 | 76813  | 1743.154663  | -415.9430847 | 667.958557   | 5997.42432   | -26.10379    | 1         |
+| 54883.9648 | 394485 | 89886  | 1945.750854  | -2512.404541 | 2948.14404   | 14496.3232   | -491.70593   | 1         |
+| 54184.4531 | 338380 | 60629  | 1059.707153  | -966.7955933 | 3331.49146   | 7877.6333    | 14.0653687   | 2         |
+| 54737.4766 | 306087 | 114762 | 1153.990112  | 726.7556152  | 142.62999    | 487.799774   | -59.632195   | 2         |
+| 53959.1289 | 615779 | 145288 | 3343.247559  | 1712.121582  | 353.986755   | 16573.8262   | -1022.7864   | 3         |
+| 53953.7852 | 158319 | 269510 | 1944.918457  | 851.4907227  | 149.089676   | 680.195435   | 676.559326   | 3         |
 
 #### Channel Data
 
@@ -64,7 +73,15 @@ Channel Data is a table containing the columns described below. Required columns
 
 Channels not specified in this file will be discarded.
 
-EXAMPLE
+Example:
+
+| Channel      | Marker | T1   | T2    | OOB    |
+|--------------|--------|------|-------|--------|
+| FJComp-BL1-A | CD95   | 1133 |       | 63661  |
+| FJComp-BL3-A | CD45RO | 4249 |       | 104384 |
+| FJComp-RL1-A | CD127  | 1316 |       | 16279  |
+| FJComp-RL2-A | CD44   | 4249 | 25183 | 227456 |
+| FJComp-VL1-A | KLRG1  | 814  |       | 55306  |
 
 #### Sample Data
 
@@ -76,6 +93,17 @@ The required column is marked in bold.
 -   Sample_Group: group label respective to the sample.
 -   Correlated_Measurement: a value for the phenotypes be correlated to.
 -   ...
+
+Example:
+
+| Sample_ID | Treatment |
+|-----------|-----------|
+| 1         | None      |
+| 2         | None      |
+| 3         | None      |
+| 4         | IL10      |
+| 5         | IL10      |
+| 6         | IL10      |
 
 ### Local Workflow
 
