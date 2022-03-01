@@ -277,7 +277,7 @@ where `test_type` indicates a group comparison test, the `groups_column` is the 
 
 If `input_phenotype_counts` and `input_phenotype_counts_log` are not provided, it will automatically search for them in the `output_folder`. However, if explicitly provided, it will make some of the processing faster. Consider using it when analyzing big datasets.
 
-The `output_file` and `log_file` parameters ar optional, but it's a convenience when performing different group comparisons on the same dataset, for example.
+The `output_file` and `log_file` parameters ar optional, but it's a convenience when performing different group comparisons on the same dataset, for example. They will be stored into `output_folder`, **DO NOT** put the full path to a file here, only the file name.
 
 
 #### Independent Phenotypes Filtering
@@ -300,7 +300,7 @@ get_independent_relevant_phenotypes_server(output_folder = "../outputs",
 )
 ```
 
-
+The `output_file` and `log_file` parameters ar optional, but it's a convenience when trying different number of phenotypes on the same dataset, for example. They will be stored into `output_folder`, **DO NOT** put the full path to a file here, only the file name.
 
 
 
