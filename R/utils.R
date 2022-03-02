@@ -79,7 +79,7 @@ find_phenotype_in_file <- function(phen_file, phen, markers, n_cores = 1, chunk_
   }
   
   #Get header and col types
-  file_sample <- data.table::fread(phen_file, nrows = 2, header= T)
+  file_sample <- data.table::fread(cmd = paste('head -n 2', phen_file), nrows = 2, header= T)
   header <- colnames(file_sample)
   
   column_types <- as.vector(sapply(file_sample, typeof))
@@ -155,4 +155,76 @@ normalize_vals <- function(x){
   x <- x-min(x)
   x <- x/max(x)
   return(x)
+}
+
+
+#' Get n_phenotypes from file sorting by sorted_column
+#' 
+#' @export
+csv_read_n_sorted_phenotypes <- function(file_path,n_phenotypes, sorted_column, decreasing = FALSE){
+  
+  #Get header and col types
+  file_sample <- data.table::fread(cmd = paste('head -n 2', file_path), nrows = 2, header= T)
+  header <- colnames(file_sample)
+  
+  column_types <- as.vector(sapply(file_sample, typeof))
+  column_types[column_types=="character"] <- "string"
+  
+  # Use LaF to read big files by chunks
+  laf <- LaF::laf_open_csv(file_path, column_types = column_types, skip = 1,ignore_failed_conversion = TRUE)
+  
+  # Get first chunk
+  phenotypes <- data.table::as.data.table(LaF::next_block(laf, nrows=n_phenotypes))
+  colnames(phenotypes) <- header
+  
+  # Sorting data
+  sorting_order <- base::ifelse(decreasing,-1,1)
+  data.table::setorderv(phenotypes,sorted_column, order = sorting_order)
+  
+  # Get limit value for filter next chunks
+  limit_val <- as.numeric(phenotypes[.N, ..sorted_column])
+  
+  # Chunk size at least 5000 for efficiency
+  chunk_size <- base::ifelse(n_phenotypes<5000,5000,n_phenotypes)
+  
+  while(TRUE){
+    
+    # Get next chunk
+    next_phenotypes <- data.table::as.data.table(LaF::next_block(laf, nrows=chunk_size))
+    
+    # Stop if reached end
+    if (nrow(next_phenotypes) == 0) break;
+    
+    colnames(next_phenotypes) <- header
+    
+    # Set filtering condition
+    if(decreasing){
+      condition <- base::quote(eval(as.name(sorted_column)) >= limit_val)
+    }else{
+      condition <- base::quote(eval(as.name(sorted_column)) <= limit_val)
+    }
+    
+    
+    # Apply filter
+    next_phenotypes <- next_phenotypes[eval(condition),]
+    
+    # If any left
+    if(nrow(next_phenotypes) > 0){
+      
+      phenotypes <- base::rbind(phenotypes,next_phenotypes)
+      
+      data.table::setorderv(phenotypes,sorted_column, order = sorting_order)
+      
+      phenotypes <- phenotypes[1:n_phenotypes, ]
+      
+      limit_val <- as.numeric(phenotypes[.N, ..sorted_column])
+      
+    }
+    
+    
+  }
+  
+  return(as.data.frame(phenotypes))
+  
+  
 }

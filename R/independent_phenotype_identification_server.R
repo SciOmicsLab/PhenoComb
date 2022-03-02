@@ -55,7 +55,9 @@ get_independent_relevant_phenotypes_server <- function(output_folder,
   channel_data <- as.data.frame(data.table::fread(channel_file,check.names = FALSE))
   sample_data <- as.data.frame(data.table::fread(sample_file,check.names = FALSE))
   
-  phen_data <- as.data.frame(data.table::fread(file.path(output_folder,filtered_phenotypes_file),nThread = n_threads))
+  #phen_data <- as.data.frame(data.table::fread(file.path(output_folder,filtered_phenotypes_file),nThread = n_threads))
+  
+  phen_data <- csv_read_n_sorted_phenotypes(file.path(output_folder,filtered_phenotypes_file), n_phenotypes, "p_value")
   
   final_phenotypes <- get_independent_relevant_phenotypes(phen_data,
                                                           channel_data,
