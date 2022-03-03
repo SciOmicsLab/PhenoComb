@@ -73,6 +73,13 @@ process_cell_data <- function(cell_data, channel_data, sample_data, sampleID_col
   check_sample_data(sample_data)
   check_cell_data(cell_data, sampleID_col)
   
+  
+  # Check for data consistency accross files
+  
+  # Check if channels in  Channel column in channel_data are present in cell_data
+  
+  
+  
   # Rename SampleID and filter samples if in sample data
   colnames(cell_data)[colnames(cell_data) == sampleID_col] <- 'Sample_ID'
   cell_data[,"Sample_ID"] <- as.character(cell_data[,"Sample_ID"])
