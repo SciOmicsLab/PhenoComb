@@ -69,16 +69,20 @@ process_cell_data <- function(cell_data, channel_data, sample_data, sampleID_col
   sample_data <- as.data.frame(sample_data)
   
   # Check data format required
+    
   check_channel_data(channel_data)
   check_sample_data(sample_data)
-  check_cell_data(cell_data, sampleID_col)
+  check_cell_data(cell_data, sampleID_col)  
   
   
-  # Check for data consistency accross files
-  
+  # Check for data consistency across files
+
   # Check if channels in  Channel column in channel_data are present in cell_data
+
   
   
+  markers <- channel_data[,"Marker"]
+  n_markers <- nrow(channel_data)
   
   # Rename SampleID and filter samples if in sample data
   colnames(cell_data)[colnames(cell_data) == sampleID_col] <- 'Sample_ID'
@@ -87,9 +91,11 @@ process_cell_data <- function(cell_data, channel_data, sample_data, sampleID_col
   
   
   # Select channel columns and rename to markers
-  print_log("Filtering cell data based on channel data file...")
+  print_log("Filtering cell data based on channel data...")
   cell_data = cell_data[,c(channel_data[,"Channel"],"Sample_ID")]
   colnames(cell_data) <- c(channel_data[,"Marker"],"Sample_ID")
+  
+  print_log("Filtering cell data based on sample data...")
   cell_data <- cell_data[cell_data[,"Sample_ID"] %in% sample_data[,"Sample_ID"],]
   
   # Set NA values to Inf
@@ -102,25 +108,43 @@ process_cell_data <- function(cell_data, channel_data, sample_data, sampleID_col
     
     print_log("Removing cells with values over OOB using ",n_threads," thread(s)...")
     
-    oob_data <- as.numeric(channel_data[,"OOB"])
+    # oob_data <- as.numeric(channel_data[,"OOB"])
+    # 
+    # cell_data_list <- as.matrix(cell_data[,channel_data[,"Marker"]])
+    # 
+    # cell_data_list <- parallel::mclapply(seq_len(nrow(cell_data_list)), function(i) cell_data_list[i,], mc.cores = n_threads)
+    # 
+    # oob_filter <- unlist(parallel::mclapply(cell_data_list, function(row) !any(row > oob_data), mc.cores = n_threads))
+    # 
+    # cell_data <- cell_data[oob_filter,]
+    # 
+    # rm(cell_data_list, oob_filter)
+    # gc(full = TRUE,verbose = FALSE)
     
-    cell_data_list <- as.matrix(cell_data[,channel_data[,"Marker"]])
+    for(m in 1:n_markers){
+      
+      oob_threshold <- as.numeric(channel_data[m,"OOB"])
+      
+      if(!is.na(oob_threshold)){
+        
+        print_log("Applying OOB filter to ",markers[m])
+        
+        oob_filter <- unlist(parallel::mclapply(cell_data[, markers[m]], function(i) i <= oob_threshold, mc.cores = n_threads))
+        
+        cell_data <- cell_data[oob_filter,]
+        
+      }
+      
+    }
     
-    cell_data_list <- parallel::mclapply(seq_len(nrow(cell_data_list)), function(i) cell_data_list[i,], mc.cores = n_threads)
-    
-    oob_filter <- unlist(parallel::mclapply(cell_data_list, function(row) !any(row > oob_data), mc.cores = n_threads))
-    
-    cell_data <- cell_data[oob_filter,]
-    
-    rm(cell_data_list, oob_filter)
+    rm(oob_filter)
     gc(full = TRUE,verbose = FALSE)
     
   }
   
   # Apply thresholds to discretize data
   
-  markers <- channel_data[,"Marker"]
-  n_markers <- nrow(channel_data)
+  
   threshold_cols <- colnames( channel_data )[grepl("T", colnames( channel_data ) )]
   for(m in 1:n_markers){
     thresholds <- as.numeric(channel_data[m,threshold_cols])
