@@ -114,7 +114,8 @@ memory_safe_compute_statistically_relevant_phenotypes <- function(output_folder,
       
       print_log("Filtering for parent population...")
       
-      has_parent_phen <- unlist(parallel::mclapply(1:nrow(pheno_counts), function(i) has_phenotype(pheno_counts[i, markers],parent_phen), mc.cores = n_threads))
+      has_parent_phen <- unlist(parallel::mclapply(1:nrow(pheno_counts), function(i) has_phenotype(pheno_counts[i, markers],parent_phen),
+                                                   mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE))
       
       pheno_counts <- pheno_counts[has_parent_phen, ]
     }
@@ -146,7 +147,8 @@ memory_safe_compute_statistically_relevant_phenotypes <- function(output_folder,
     
     print_log("Filtering statistically relevant phenotypes...")
     
-    pval_filter <- unlist(parallel::mclapply(1:nrow(pheno_counts), function(i) pheno_counts[i,"p_value"] <= max_pval, mc.cores = n_threads))
+    pval_filter <- unlist(parallel::mclapply(1:nrow(pheno_counts), function(i) pheno_counts[i,"p_value"] <= max_pval,
+                                             mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE))
     
     pheno_counts <- pheno_counts[pval_filter, ]
     

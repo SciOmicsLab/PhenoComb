@@ -44,11 +44,14 @@ get_phen_order_factor <- function(phen_data,st_test_cols, n_threads = 1){
   if(length(st_test_cols) == 1){
     phen_order_factor <- -normalize_vals(unlist(phen_data[,st_test_cols]))
   }else{
-    phen_order_factor <- matrix(unlist(parallel::mclapply(phen_data[,st_test_cols], function(st_col) normalize_vals(st_col), mc.cores = n_threads)),ncol = length(st_test_cols))
+    phen_order_factor <- matrix(unlist(parallel::mclapply(phen_data[,st_test_cols], function(st_col) normalize_vals(st_col),
+                                                          mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE)),ncol = length(st_test_cols))
     
-    phen_order_factor_list <- parallel::mclapply(seq_len(nrow(phen_order_factor)), function(i) phen_order_factor[i,], mc.cores = n_threads)
+    phen_order_factor_list <- parallel::mclapply(seq_len(nrow(phen_order_factor)), function(i) phen_order_factor[i,],
+                                                 mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE)
     
-    phen_order_factor <- -unlist(parallel::mclapply(phen_order_factor_list, function(row) prod(row), mc.cores = n_threads))
+    phen_order_factor <- -unlist(parallel::mclapply(phen_order_factor_list, function(row) prod(row),
+                                                    mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE))
   }
   
   return(phen_order_factor)
@@ -87,7 +90,8 @@ get_independent_relevant_phenotypes <- function(phen_data,
   
     print_log("Filtering phenotypes with p-value equal or less than ",max_pval, " ...")
     
-    pval_filter <- unlist(parallel::mclapply(1:nrow(phen_data), function(i) phen_data[i,"p_value"] <= max_pval, mc.cores = n_threads))
+    pval_filter <- unlist(parallel::mclapply(1:nrow(phen_data), function(i) phen_data[i,"p_value"] <= max_pval,
+                                             mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE))
     
     phen_data <- phen_data[pval_filter, ]
     
@@ -117,9 +121,11 @@ get_independent_relevant_phenotypes <- function(phen_data,
   
   marker_list <- as.matrix(phen_data[,markers])
   
-  marker_list <- parallel::mclapply(seq_len(nrow(marker_list)), function(i) marker_list[i,], mc.cores = n_threads)
+  marker_list <- parallel::mclapply(seq_len(nrow(marker_list)), function(i) marker_list[i,],
+                                    mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE)
   
-  phen_data$n_markers <- unlist(parallel::mclapply(marker_list, function(phen_markers) count_markers(phen_markers), mc.cores = n_threads))
+  phen_data$n_markers <- unlist(parallel::mclapply(marker_list, function(phen_markers) count_markers(phen_markers),
+                                                   mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE))
   
   rm(marker_list)
   gc(full = TRUE,verbose = FALSE)
@@ -132,7 +138,8 @@ get_independent_relevant_phenotypes <- function(phen_data,
   phen_dist_list <- expand.grid(rownames(phen_data),rownames(phen_data))
   phen_dist_list[,1] <- as.numeric(phen_dist_list[,1])
   phen_dist_list[,2] <- as.numeric(phen_dist_list[,2])
-  phen_dist_list$compensated_dist <- parallel::mclapply(1:nrow(phen_dist_list), function(i) compensated_shared_markers(phen_data[as.numeric(phen_dist_list[i,1]), markers],phen_data[as.numeric(phen_dist_list[i,2]), markers]), mc.cores = n_threads)
+  phen_dist_list$compensated_dist <- parallel::mclapply(1:nrow(phen_dist_list), function(i) compensated_shared_markers(phen_data[as.numeric(phen_dist_list[i,1]), markers],phen_data[as.numeric(phen_dist_list[i,2]), markers]),
+                                                        mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE)
   phen_dist_matrix <- matrix(unlist(phen_dist_list$compensated_dist), nrow = nrow(phen_data))
   diag(phen_dist_matrix) <- 0
   
@@ -177,7 +184,7 @@ get_independent_relevant_phenotypes <- function(phen_data,
       return(list())
     }
     
-  }, mc.cores = n_threads))
+  }, mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE))
   
   
   cluster_top_phenotypes <- as.data.frame(table(cluster_top_phenotypes))
@@ -202,7 +209,8 @@ get_independent_relevant_phenotypes <- function(phen_data,
   print_log("Final independent phenotypes: ", nrow(cluster_top_phenotypes))
   
   
-  cluster_top_phenotypes$Phenotype <- unlist(parallel::mclapply(cluster_top_phenotypes$Phenotype_ID, function(i) make_phenotype_name(as.numeric(phen_data[i, markers]),markers), mc.cores = n_threads))
+  cluster_top_phenotypes$Phenotype <- unlist(parallel::mclapply(cluster_top_phenotypes$Phenotype_ID, function(i) make_phenotype_name(as.numeric(phen_data[i, markers]),markers),
+                                                                mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE))
   
   
   final_phenotypes <- phen_data[as.numeric(cluster_top_phenotypes$Phenotype_ID),(length(markers)+1):ncol(phen_data)]

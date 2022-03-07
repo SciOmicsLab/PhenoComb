@@ -5,7 +5,8 @@ count_to_frequency <- function(samples, total_counts, n_threads = 1){
   
   sample_names <- colnames(samples)
   
-  samples <- parallel::mclapply(sample_names, function(s) samples[,s] / as.numeric(total_counts[1 , s]), mc.cores = n_threads)
+  samples <- parallel::mclapply(sample_names, function(s) samples[,s] / as.numeric(total_counts[1 , s]),
+                                mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE)
   
   samples <- as.data.frame(do.call(cbind,samples))
   
@@ -34,7 +35,8 @@ statistical_test_group <- function(counts_data, sample_data, groups_column, g1, 
   
   n_comparisons <- ncol(g1)*ncol(g2)
   
-  st_test <- as.matrix(do.call(rbind,parallel::mclapply(1:nrow(g1), function(i) mann_whitney_u_test(g1[i,], g2[i,], n_comparisons), mc.cores = n_threads)))
+  st_test <- as.matrix(do.call(rbind,parallel::mclapply(1:nrow(g1), function(i) mann_whitney_u_test(g1[i,], g2[i,], n_comparisons),
+                                                        mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE)))
   
   colnames(st_test) <- c("effect_size","p_value")
   
@@ -84,9 +86,11 @@ statistical_test_correlation <- function(counts_data, sample_data, correlation_c
   
   counts_data_list <- as.matrix(counts_data[,sample_ids])
   
-  counts_data_list <- parallel::mclapply(seq_len(nrow(counts_data_list)), function(i) counts_data_list[i,], mc.cores = n_threads)
+  counts_data_list <- parallel::mclapply(seq_len(nrow(counts_data_list)), function(i) counts_data_list[i,],
+                                         mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE)
   
-  st_test <- as.matrix(do.call(rbind,parallel::mclapply(counts_data_list, function(row) kendall_correlation_test(row, correlation_data), mc.cores = n_threads)))
+  st_test <- as.matrix(do.call(rbind,parallel::mclapply(counts_data_list, function(row) kendall_correlation_test(row, correlation_data),
+                                                        mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE)))
   
   rm(counts_data_list)
   
@@ -133,9 +137,11 @@ statistical_test_survival <- function(counts_data, sample_data, survival_time_co
   
   counts_data_list <- as.matrix(counts_data[,sample_ids])
   
-  counts_data_list <- parallel::mclapply(seq_len(nrow(counts_data_list)), function(i) counts_data_list[i,], mc.cores = n_threads)
+  counts_data_list <- parallel::mclapply(seq_len(nrow(counts_data_list)), function(i) counts_data_list[i,],
+                                         mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE)
   
-  st_test <- as.matrix(do.call(rbind,parallel::mclapply(counts_data_list, function(row) survival_test(row, survival_time_data, survival_status_data), mc.cores = n_threads)))
+  st_test <- as.matrix(do.call(rbind,parallel::mclapply(counts_data_list, function(row) survival_test(row, survival_time_data, survival_status_data),
+                                                        mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE)))
   
   rm(counts_data_list)
   
@@ -220,7 +226,8 @@ compute_statistically_relevant_phenotypes <- function(phenotype_cell_counts,
       
       print_log("Parent penotype found. Filtering phenotypes...")
       
-      has_parent_phen <- unlist(parallel::mclapply(1:nrow(phenotype_cell_counts), function(i) has_phenotype(phenotype_cell_counts[i, markers], parent_phen), mc.cores = n_threads))
+      has_parent_phen <- unlist(parallel::mclapply(1:nrow(phenotype_cell_counts), function(i) has_phenotype(phenotype_cell_counts[i, markers], parent_phen),
+                                                   mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE))
       
       phenotype_cell_counts <- phenotype_cell_counts[has_parent_phen, ]
       
@@ -257,7 +264,8 @@ compute_statistically_relevant_phenotypes <- function(phenotype_cell_counts,
   
   print_log("Filtering statistically relevant phenotypes with p-value <= ",max_pval)
 
-  pval_filter <- unlist(parallel::mclapply(1:nrow(phenotype_cell_counts), function(i) phenotype_cell_counts[i,"p_value"] <= max_pval, mc.cores = n_threads))
+  pval_filter <- unlist(parallel::mclapply(1:nrow(phenotype_cell_counts), function(i) phenotype_cell_counts[i,"p_value"] <= max_pval,
+                                           mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE))
 
   phenotype_cell_counts <- phenotype_cell_counts[pval_filter, ]
 

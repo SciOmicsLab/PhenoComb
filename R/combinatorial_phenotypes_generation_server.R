@@ -2,22 +2,26 @@
 
 # Split sequence of numbers in chunks and return chunks in a list
 split_in_chunks <- function(n_rows, chunk_size){
-  
+
   if(chunk_size >= n_rows) return(list(c(1:n_rows)))
-  
+
   n_chunks <- ceiling(n_rows / chunk_size)
-  
+
   chunk_list <- list()
-  
+
   for (i in 1:(n_chunks - 1)){
     chunk_list[[i]] <- (((i - 1) * chunk_size) + 1):(i * chunk_size)
   }
-  
+
   chunk_list[[n_chunks]] <- (((n_chunks - 1) * chunk_size) + 1):n_rows
-  
+
   return(chunk_list)
-  
+
 }
+
+
+
+
 
 
 # Compute all combinations of markers in a memory-safe way by
@@ -59,7 +63,8 @@ memory_safe_combinatorial_phenotype_counts <- function(unique_phenotype_counts,
     
     parent_phen <- phenotype_to_numbers(parent_phen, markers)
     
-    has_parent_phen <- unlist(parallel::mclapply(1:nrow(unique_phenotype_counts), function(i) has_phenotype(unique_phenotype_counts[i,markers], parent_phen), mc.cores = n_threads))
+    has_parent_phen <- unlist(parallel::mclapply(1:nrow(unique_phenotype_counts), function(i) has_phenotype(unique_phenotype_counts[i,markers], parent_phen),
+                                                 mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE))
     
     unique_phenotype_counts <- unique_phenotype_counts[has_parent_phen,]
     
@@ -170,7 +175,8 @@ memory_safe_combinatorial_phenotype_counts <- function(unique_phenotype_counts,
       if(n_combinations == 1){
         combinatorial_phenotypes <- group_and_reduce_phenotypes(unique_phenotype_counts,current_marker_combinations[1,])
       }else{
-        combinatorial_phenotypes <- do.call(rbind,parallel::mclapply(1:n_combinations, function(j) group_and_reduce_phenotypes(unique_phenotype_counts,current_marker_combinations[j,]), mc.cores = n_threads))
+        combinatorial_phenotypes <- do.call(rbind,parallel::mclapply(1:n_combinations, function(j) group_and_reduce_phenotypes(unique_phenotype_counts,current_marker_combinations[j,]),
+                                                                     mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE))
       }
       
       print_log(format(nrow(combinatorial_phenotypes), scientific=F)," phenotypes generated...")
@@ -182,9 +188,11 @@ memory_safe_combinatorial_phenotype_counts <- function(unique_phenotype_counts,
           
           counts_list <- as.matrix(combinatorial_phenotypes[,samples_id])
           
-          counts_list <- parallel::mclapply(seq_len(nrow(counts_list)), function(i) counts_list[i,], mc.cores = n_threads)
+          counts_list <- parallel::mclapply(seq_len(nrow(counts_list)), function(i) counts_list[i,],
+                                            mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE)
           
-          cell_filter <- unlist(parallel::mclapply(counts_list, function(row) (sum(row >= min_count)/n_samples) >= sample_fraction_min_counts, mc.cores = n_threads))
+          cell_filter <- unlist(parallel::mclapply(counts_list, function(row) (sum(row >= min_count)/n_samples) >= sample_fraction_min_counts,
+                                                   mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE))
           
           combinatorial_phenotypes <- combinatorial_phenotypes[cell_filter,]
           

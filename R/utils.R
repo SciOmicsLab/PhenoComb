@@ -62,7 +62,8 @@ find_phenotype <- function(phen_table, phen, markers, n_cores = 1){
     phen <- phenotype_to_numbers(phen,markers)  
   }
   
-  comparison <- unlist(parallel::mclapply(1:nrow(phen_table), function(i) phenotypes_are_equal(phen_table[i,markers],phen), mc.cores = n_cores))
+  comparison <- unlist(parallel::mclapply(1:nrow(phen_table), function(i) phenotypes_are_equal(phen_table[i,markers],phen),
+                                          mc.cores = n_cores, mc.preschedule = TRUE, mc.cleanup = TRUE))
   
   return(phen_table[comparison,])
   

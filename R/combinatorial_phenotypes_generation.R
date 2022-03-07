@@ -129,7 +129,8 @@ process_cell_data <- function(cell_data, channel_data, sample_data, sampleID_col
         
         print_log("Applying OOB filter to ",markers[m])
         
-        oob_filter <- unlist(parallel::mclapply(cell_data[, markers[m]], function(i) i <= oob_threshold, mc.cores = n_threads))
+        oob_filter <- unlist(parallel::mclapply(cell_data[, markers[m]], function(i) i <= oob_threshold,
+                                                mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE))
         
         cell_data <- cell_data[oob_filter,]
         
@@ -181,7 +182,7 @@ get_unique_phenotype_counts <- function(processed_cell_data, min_count = 0, samp
       sample_phenotypes <- unique_phen[unique_phen[,"Sample_ID"] == id, c(markers,"Count")]
       colnames(sample_phenotypes) <- c(markers,id)
       return(sample_phenotypes)
-    }, mc.cores = n_threads)
+    }, mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE)
   
   # Join all sample ID dataframes by Phenotypes
   unique_phen <- Reduce(function(dtf1, dtf2) dplyr::full_join(dtf1, dtf2, by = markers), unique_phen)
@@ -202,7 +203,8 @@ get_unique_phenotype_counts <- function(processed_cell_data, min_count = 0, samp
       
       counts_list <- parallel::mclapply(seq_len(nrow(counts_list)), function(i) counts_list[i,], mc.cores = n_threads)
       
-      cell_filter <- unlist(parallel::mclapply(counts_list, function(row) (sum(row >= min_count)/n_samples) >= sample_fraction_min_counts, mc.cores = n_threads))
+      cell_filter <- unlist(parallel::mclapply(counts_list, function(row) (sum(row >= min_count)/n_samples) >= sample_fraction_min_counts,
+                                               mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE))
       
       unique_phen <- unique_phen[cell_filter,]
       
@@ -239,7 +241,7 @@ generate_marker_combinations <- function(n_markers, max_phenotype_length = 0, lo
     comb_list <- parallel::mclapply(seq_len(nrow(comb_list)), function(i) comb_list[i,], mc.cores = n_threads)
     
     comb_filter <- unlist(parallel::mclapply(comb_list, function(row) (n_markers-sum(row)) <= max_phenotype_length,
-                                             mc.cores = n_threads))
+                                             mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE))
     
     local_marker_comb <- local_marker_comb[comb_filter,]
     
@@ -318,7 +320,8 @@ combinatorial_phenotype_counts <- function(processed_cell_data,
     
     parent_phen <- phenotype_to_numbers(parent_phen, markers)
     
-    has_parent_phen <- unlist(parallel::mclapply(1:nrow(unique_phen), function(i) has_phenotype(unique_phen[i,markers], parent_phen), mc.cores = n_threads))
+    has_parent_phen <- unlist(parallel::mclapply(1:nrow(unique_phen), function(i) has_phenotype(unique_phen[i,markers], parent_phen),
+                                                 mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE))
     
     unique_phen <- unique_phen[has_parent_phen,]
     
@@ -335,7 +338,8 @@ combinatorial_phenotype_counts <- function(processed_cell_data,
   
   print_log("Counting cells for each of the ",nrow(marker_combinations)," marker combinations using ",n_threads," thread(s)...")
   # Compute counts for all phenotype combinations
-  combinatorial_phenotypes <- do.call(rbind,parallel::mclapply(1:nrow(marker_combinations), function(i) group_and_reduce_phenotypes(unique_phen, marker_combinations[i,]),mc.cores = n_threads))
+  combinatorial_phenotypes <- do.call(rbind,parallel::mclapply(1:nrow(marker_combinations), function(i) group_and_reduce_phenotypes(unique_phen, marker_combinations[i,]),
+                                                               mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE))
 
   print_log(nrow(combinatorial_phenotypes)," unique phenotypes generated...")
 
@@ -354,13 +358,15 @@ combinatorial_phenotype_counts <- function(processed_cell_data,
       
       counts_list <- parallel::mclapply(seq_len(nrow(counts_list)), function(i) counts_list[i,], mc.cores = n_threads)
       
-      cell_filter <- unlist(parallel::mclapply(counts_list, function(row) (sum(row >= min_count)/n_samples) >= sample_fraction_min_counts, mc.cores = n_threads))
+      cell_filter <- unlist(parallel::mclapply(counts_list, function(row) (sum(row >= min_count)/n_samples) >= sample_fraction_min_counts,
+                                               mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE))
       
       combinatorial_phenotypes <- combinatorial_phenotypes[cell_filter,]
       
       rm(counts_list, cell_filter)
       
-      combinatorial_phenotypes <- combinatorial_phenotypes[!unlist(parallel::mclapply(1:nrow(combinatorial_phenotypes), function(i) all(combinatorial_phenotypes[i,samples_id] < min_count), mc.cores = n_threads)),]
+      combinatorial_phenotypes <- combinatorial_phenotypes[!unlist(parallel::mclapply(1:nrow(combinatorial_phenotypes), function(i) all(combinatorial_phenotypes[i,samples_id] < min_count),
+                                                                                      mc.cores = n_threads, mc.preschedule = TRUE, mc.cleanup = TRUE)),]
       
       print_log(nrow(combinatorial_phenotypes)," phenotypes left...")
     }  
