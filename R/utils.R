@@ -162,7 +162,7 @@ normalize_vals <- function(x){
 #' Get n_phenotypes from file sorting by sorted_column
 #' 
 #' @export
-csv_read_n_sorted_phenotypes <- function(file_path,n_phenotypes, sorted_column, decreasing = FALSE){
+csv_read_n_sorted_phenotypes <- function(file_path, n_phenotypes, sorted_column, decreasing = FALSE){
   
   #Get header and col types
   file_sample <- data.table::fread(cmd = paste('head -n 2', file_path), nrows = 2, header= T)

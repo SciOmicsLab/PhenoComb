@@ -5,6 +5,7 @@
 #' 
 #' @docType package
 #' @author Paulo Burke <pauloepburke@gmail.com>
+#' @import data.table
 #' @import Rcpp
 #' @importFrom Rcpp evalCpp
 #' @useDynLib PhenoComb
@@ -12,6 +13,8 @@
 NULL  
 
 .onLoad <- function(libname, pkgname){
+  
+  
   op <- options()
   op.phenocomb <- list(
     PhenoComb.verbose = TRUE,
