@@ -92,7 +92,7 @@ memory_safe_compute_statistically_relevant_phenotypes <- function(output_folder,
   laf <- LaF::laf_open_csv(phenotype_counts_file_path,
                            column_types = column_types,
                            skip = start_from+1,
-                           ignore_failed_conversion = FALSE)
+                           ignore_failed_conversion = TRUE)
   
   print_log("--------------------------------------------")
   
