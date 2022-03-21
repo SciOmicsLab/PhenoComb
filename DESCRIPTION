@@ -21,6 +21,7 @@ Imports:
     survival (>= 3.2-13),
     tools (>= 4.1.1)
 LinkingTo: Rcpp
+SystemRequirements: C++11
 RoxygenNote: 7.1.2
 Encoding: UTF-8
 Suggests: 
