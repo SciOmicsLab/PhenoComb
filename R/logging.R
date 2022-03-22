@@ -1,4 +1,5 @@
-
+# Start of log
+# Fix filecreate TRUE
 
 start_log <- function(log_path = NULL, append = FALSE, verbose = FALSE){
   
