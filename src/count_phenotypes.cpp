@@ -27,10 +27,10 @@ IntegerMatrix group_and_reduce_phenotypes(IntegerMatrix phenotypes, IntegerVecto
   CharacterVector ch = colnames(phenotypes);  
   
   //Remove Columns
-  int cols_removed = 0;
+  //int cols_removed = 0;
   for(int j = 0; j<n_markers; j++){
     if(markers_to_drop(j)){
-      cols_removed++;
+      //cols_removed++;
       for(int i = 0; i<nrows; i++){
         phenotypes(i,j) = -1;
       }
@@ -39,7 +39,7 @@ IntegerMatrix group_and_reduce_phenotypes(IntegerMatrix phenotypes, IntegerVecto
   
   
   //If no columns were removed, return phenotyps
-  if(!cols_removed) return(phenotypes);
+  //if(!cols_removed) return(phenotypes);
   
   
   
