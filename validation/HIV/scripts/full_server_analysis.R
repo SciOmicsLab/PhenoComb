@@ -1,9 +1,9 @@
 
+# To run using Rscript
+
 library(PhenoComb)
 
 
-#input_folder <- "/Users/burke/Projects/PhenoComb/validation/Real_Datasets/FR-FCM-ZZZK/PhenoCombAnalysis/input"
-#output_folder <- "/Users/burke/Projects/PhenoComb/validation/Real_Datasets/FR-FCM-ZZZK/PhenoCombAnalysis/output"
 input_folder <- "../PhenoCombAnalysis/input"
 output_folder <- "../PhenoCombAnalysis/output"
 cell_file <- "concat_1.fcs" # or "cell_data.csv"
