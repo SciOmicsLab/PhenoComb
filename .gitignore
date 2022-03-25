@@ -31,3 +31,4 @@ vignettes/*.pdf
 *.so
 .DS_Store
 TRUE
+*.fcs
