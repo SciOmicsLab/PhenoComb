@@ -82,3 +82,4 @@ final_phenotypes <- get_independent_relevant_phenotypes(relevant_phenotypes,
                                                         min_confidence = 0.0,
                                                         n_threads = 10
 )
+

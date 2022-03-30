@@ -4,7 +4,7 @@ setwd(dirname(getActiveDocumentContext()$path))
 
 library(plotly)
 library(dplyr)
-library(shiny)
+
 
 
 get_run_time <- function(file_path, type = "full"){
@@ -74,11 +74,15 @@ get_phenotypes_generated <- function(file_path){
     
     if(grepl( "Writing", txt[i], fixed = TRUE)){
       
+      if(grepl( "done", txt[i], fixed = TRUE)) next  #Fixing one other log line that thas "writing" word. Can be done more elegantly.
+      
       phenotypes_generated <- phenotypes_generated + as.integer(sub(".*?Writing .*?(\\d+).*", "\\1", txt[i]))
       
     }
     
   }
+  
+  rm(txt)
   
   return(phenotypes_generated)
   
@@ -189,7 +193,7 @@ plot_nphenotypes <- function(){
   
   
   
-  phen_data <- expand.grid(4:24,2:3)
+  phen_data <- expand.grid(4:28,2:3)
   colnames(phen_data) <- c("markers","states")
   phen_data$phenotypes <- (phen_data$states + 1)^(phen_data$markers)
   
@@ -207,8 +211,9 @@ plot_nphenotypes <- function(){
                         xaxis = list(
                           title = "Number of Markers",
                           tickmode = "array",
-                          nticks = 5,
-                          tickvals = c(4,10,15,19,24)
+                          nticks = 7,
+                          tickvals = c(4,10,15,20,25,30,35),
+                          range = c(3, 35)
                           ),
                         legend = list(x = 0.08, y = 0.98,title=list(text='States'))
   )
@@ -217,7 +222,7 @@ plot_nphenotypes <- function(){
   
 }
 
-plot_nphenotypes()
+
 
 
 plot_nmarker_experiment_runtime <- function(results){
@@ -257,15 +262,17 @@ plot_nmarker_experiment_runtime <- function(results){
                         xaxis = list(
                           title = "Number of Markers",
                           tickmode = "array",
-                          nticks = 4,
-                          tickvals = c(4,10,15,19) )
+                          nticks = 7,
+                          tickvals = c(4,10,15,20,25,30,35),
+                          range = c(3, 35)
+                          )
   )
   
   return(fig)
   
 }
 
-plot_nmarker_experiment_runtime(results)
+
 
 
 
@@ -322,7 +329,7 @@ plot_max_phen_len_experiment_runtime <- function(results){
   
 }
 
-plot_max_phen_len_experiment_runtime(results)
+
 
 
 
@@ -372,8 +379,6 @@ plot_n_cells_experiment_runtime <- function(results){
   
   return(fig)
 }
-
-plot_n_cells_experiment_runtime(results)
 
 
 
@@ -429,11 +434,6 @@ plot_n_samples_experiment_runtime <- function(results){
   
 }
 
-plot_n_samples_experiment_runtime(results)
-
-
-
-
 
 
 
@@ -486,7 +486,31 @@ plot_n_threads_experiment_runtime <- function(results){
   
 }
 
-plot_n_threads_experiment_runtime(results)
+
+add_point_to_figure <- function(fig,x,y,ann){
+  
+  dt <- data.frame(x = x,y = y, ann = ann)
+  
+  t <- list(
+    
+    family = "PT Sans Narrow",
+    
+    size = 7,
+    
+    color = toRGB("grey50"))
+  
+  fig <- fig %>% add_markers(data = dt, x = ~x, y = ~y, type = 'scatter', mode = 'markers',
+                           marker = list(color = 'purple'),
+                           showlegend = FALSE,
+                           inherit = FALSE)
+  
+  fig <- fig %>% add_text(data = dt, x = ~x, y = ~y, text = ~ann, textfont = t, textposition = "top right",showlegend = FALSE,
+                          inherit = FALSE)
+  
+  return(fig)
+  
+}
+
 
 
 experiments <- read.csv("experiments.csv")
@@ -495,27 +519,47 @@ replicates <- 3
 
 results_folder <- "outputs"
 
-
-
 results <- read_results(experiments,results_folder,replicates)
 
-chunk_results <- get_chunk_info(results_folder,16,3)
+
+real_datasets_result_folder <- "real_datasets_results"
+
+real_datasets <- c("combinatorial_phenotypes_parent_CD45+CD14+.log",
+                    "combinatorial_phenotypes_parent_CD45+CD3-CD19-CD56-CD14-.log",
+                    "combinatorial_phenotypes_parent_CD45+CD19+.log",
+                    "combinatorial_phenotypes_parent_CD45+CD56+.log",
+                    "combinatorial_phenotypes_parent_CD45+CD3+.log",
+                    "HIV_combinatorial_phenotypes.log")
 
 
-plot_nmarker_experiment_runtime(results)
+dataset_names <- c("CD45+CD14+",
+                   "CD45+CD3-CD19-CD56-CD14-",
+                   "CD45+CD19+",
+                   "cCD45+CD56+",
+                   "CD45+CD3+",
+                   "HIV")
 
-plot_n_threads_experiment_runtime(results)
+real_datasets_n_markers <- c(16,18,22,16,26,12)
 
-plot_max_phen_len_experiment_runtime(results)
+real_datasets_runtimes <- unlist(lapply(real_datasets, function(i) get_run_time(file.path(real_datasets_result_folder,i),type = "combinatorics_run")/3600))
 
-plot_n_cells_experiment_runtime(results)
+real_datasets_phenotypes <- unlist(lapply(real_datasets, function(i) get_phenotypes_generated(file.path(real_datasets_result_folder,i))))
 
-plot_n_samples_experiment_runtime(results)
+
+
+n_phenotypes <- plot_nphenotypes()
+
+n_phenotypes <- add_point_to_figure(n_phenotypes,real_datasets_n_markers,real_datasets_phenotypes,dataset_names)
+
+
+n_marker <- plot_nmarker_experiment_runtime(results)
+
+n_marker <- add_point_to_figure(n_marker,real_datasets_n_markers,real_datasets_runtimes,dataset_names)
 
 
 row1 <- subplot(
-        plot_nphenotypes(),
-        plot_nmarker_experiment_runtime(results),
+        n_phenotypes,
+        n_marker,
         plot_max_phen_len_experiment_runtime(results),
         nrows = 1,
         widths = c(0.3,0.3,0.3),
@@ -536,7 +580,3 @@ row2 <- subplot(
 subplot(row1,row2,nrows = 2,margin = 0.08, titleX = TRUE, titleY = TRUE)
 
 save_image(subplot(row1,row2,nrows = 2,margin = 0.08, titleX = TRUE, titleY = TRUE), "benchmark.pdf",width = 800, height = 500)
-
-
-
-
