@@ -46,6 +46,12 @@ summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
   ciMult <- qt(conf.interval/2 + .5, datac$N-1)
   datac$ci <- datac$se * ciMult
   
+  t_test <- t.test(eval(as.name(measurevar)) ~ eval(as.name(groupvars[1])), data=data, conf.level=conf.interval)$conf.int
+  
+  datac$low_mean_diff_ci <- t_test[1]
+  
+  datac$high_mean_diff_ci <- t_test[2]
+  
   return(datac)
 }
 
@@ -66,7 +72,6 @@ plot_phenotype <- function(sample_data, phenotype_data, result_row){
   plot_data <- data.frame(covid_status = sample_data$COVID_status, phenotype_frequency = unlist(phenotype_data[result_row,c(sample_data$Sample_ID)]))
   
   data_summary <- summarySE(plot_data, measurevar="phenotype_frequency", groupvars=c("covid_status"))
-  
   
   p <- ggplot(plot_data, aes(x = covid_status, y = phenotype_frequency, color = covid_status)) +
     
@@ -96,7 +101,7 @@ plot_phenotype <- function(sample_data, phenotype_data, result_row){
   
   
   p <- p + annotate("text", x = 1.5, y = 0.9*layer_scales(p)$y$range$range[2],
-                    label = paste('Log2 Fold Change\n',format(round(phenotype_data[result_row,"log2foldChange"], 2), nsmall = 2)),
+                    label = paste('95% CI Mean Diff\n',format(round(data_summary[1,"low_mean_diff_ci"], 3), nsmall = 3)," ~ ",format(round(data_summary[1,"high_mean_diff_ci"], 3), nsmall = 3)),
                     size = 2)
   
   
@@ -107,10 +112,9 @@ plot_phenotype <- function(sample_data, phenotype_data, result_row){
 
 ggsave("../results/phenotype_plots.pdf",
        grid.arrange(grobs = lapply(1:nrow(compiled_results), function(i) plot_phenotype(sample_data, compiled_results, i)),                             
-                    nrow = 2,
+                    nrow = ,
                     padding	= 1),
-       width = 8.8, height = 5.75, units = "in"
+       width = 9, height = 8, units = "in"
        )
-
 
 
