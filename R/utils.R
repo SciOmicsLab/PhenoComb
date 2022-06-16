@@ -170,6 +170,7 @@ csv_read_n_sorted_phenotypes <- function(file_path, n_phenotypes, sorted_column,
   
   column_types <- as.vector(sapply(file_sample, typeof))
   column_types[column_types=="character"] <- "string"
+  column_types[column_types=="logical"] <- "string" # e.g. when coxph_coefficient has NA
   
   # Use LaF to read big files by chunks
   laf <- LaF::laf_open_csv(file_path, column_types = column_types, skip = 1,ignore_failed_conversion = TRUE)
