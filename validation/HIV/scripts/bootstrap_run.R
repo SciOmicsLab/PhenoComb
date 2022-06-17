@@ -23,15 +23,13 @@ output_folder <- "../BootstrapAnalysis/outputs"
 # Number of replicates
 replicates <- 100
 
-
-# Create temporary output folder
-tmp_output_folder <- tempdir()
-dir.create(output_folder)
+dir.create(output_folder, showWarnings = FALSE)
+full_logfile <- file.path(output_folder, "bootstrap_full_record.log")
+file.create(full_logfile)
 
 
 # Read cell data
 cell_data_ff <- flowCore::read.FCS(file.path(input_folder,cell_file),truncate_max_range = FALSE)
-
 
 # Resampling function
 resample_flow_data <- function(flow_frame, output_file){
@@ -47,7 +45,9 @@ resample_flow_data <- function(flow_frame, output_file){
 
 # Start bootstrap loop
 for(j in 1:replicates){
-  
+
+  cat(paste('Bootstrap iteration', j, '\n'), file = full_logfile, append = TRUE)
+
   # Resample data
   resample_flow_data(cell_data_ff,file.path(input_folder,resampled_cell_file))
   
@@ -68,6 +68,8 @@ for(j in 1:replicates){
                                         efficient = TRUE,
                                         n_threads = 50
   )
+  # Collect logs
+  file.append(full_logfile, file.path(output_folder,"combinatorial_phenotypes.log" ) )
   
   # Filter statistically relevant phenotypes
   
@@ -84,6 +86,8 @@ for(j in 1:replicates){
                                            continue = FALSE,
                                            n_threads = 50,
                                            verbose = TRUE)
+  # Collect logs
+  file.append(full_logfile, file.path(output_folder,"significant_phenotypes_CD3+_parent.log" ) )
   
   # Compute independent statistically relevant phenotypes
   get_independent_relevant_phenotypes_server(output_folder,
@@ -98,9 +102,13 @@ for(j in 1:replicates){
                                              n_threads = 50,
                                              verbose = TRUE
   )
+  # Collect logs
+  file.append(full_logfile, file.path(output_folder,"independent_phenotypes.log" ) )
   
   # Copy output from temporary folder to output folder
-  file.copy(file.path(tmp_output_folder,"independent_phenotypes.csv"),file.path(output_folder,paste("independent_phenotypes_",j,".csv",sep = "")))
+  file.copy(file.path(output_folder,"independent_phenotypes.csv"),file.path(output_folder,paste("independent_phenotypes_",j,".csv",sep = "")))
+  
+
   
   gc(full = TRUE,verbose = FALSE)
   
