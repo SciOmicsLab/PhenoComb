@@ -1,5 +1,5 @@
 # Start of log
-# Fix filecreate TRUE
+# Fix filecreate TRUE - Fixed 6/17/2 Ann S.
 
 start_log <- function(log_path = NULL, append = FALSE, verbose = FALSE){
   
@@ -10,7 +10,7 @@ start_log <- function(log_path = NULL, append = FALSE, verbose = FALSE){
     
     if(!file.exists(log_path) | !append){
       
-      file.create(log_path,overwrite=TRUE)
+      file.create(log_path)
       
     }
     
