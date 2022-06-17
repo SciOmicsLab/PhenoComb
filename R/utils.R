@@ -80,7 +80,7 @@ find_phenotype_in_file <- function(phen_file, phen, markers, n_cores = 1, chunk_
   }
   
   #Get header and col types
-  file_sample <- data.table::fread(cmd = paste('head -n 2', phen_file), nrows = 2, header= T)
+  file_sample <- data.table::fread(cmd = paste('head -n 5', phen_file), nrows = 5, header= T)
   header <- colnames(file_sample)
   
   column_types <- as.vector(sapply(file_sample, typeof))
@@ -164,8 +164,10 @@ normalize_vals <- function(x){
 #' @export
 csv_read_n_sorted_phenotypes <- function(file_path, n_phenotypes, sorted_column, decreasing = FALSE){
   
+
+  
   #Get header and col types
-  file_sample <- data.table::fread(cmd = paste('head -n 2', file_path), nrows = 2, header= T)
+  file_sample <- data.table::fread(cmd = paste('head -n 5', file_path), nrows = 5, header= T)
   header <- colnames(file_sample)
   
   column_types <- as.vector(sapply(file_sample, typeof))
