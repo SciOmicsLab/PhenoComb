@@ -1,0 +1,94 @@
+[1] "11"
+[1] "Number of markers"
+[1] "Processing flowType benchmark for 11 markers"
+[1] "Running experiment 1"
+          used  (Mb) gc trigger  (Mb) limit (Mb) max used  (Mb)
+Ncells 2956836 158.0    5062585 270.4         NA  3804806 203.2
+Vcells 5222939  39.9   34044408 259.8    1048576 38578497 294.4
+
+Calculating phenotype counts and MFIs.First level done. Identified phenotypes: 23
+Second level done. Identified phenotypes: 243
+Level 3 done. Identified phenotypes: 1563
+Level 4 done. Identified phenotypes: 6843
+Level 5 done. Identified phenotypes: 21627
+Level 6 done. Identified phenotypes: 51195
+Level 7 done. Identified phenotypes: 93435
+Level 8 done. Identified phenotypes: 135675
+Level 9 done. Identified phenotypes: 163835
+Level 10 done. Identified phenotypes: 175099
+Level 11 done. Identified phenotypes: 177147
+All levels done. Identified phenotypes: 177147
+Warning message:
+package ‘Rcpp’ was built under R version 4.0.5 
+[1] "11"
+[1] "Number of markers"
+[1] "Processing flowType benchmark for 11 markers"
+[22/06/26 22:35:21] [INFO] Starting flowType benchmark for11markers
+Loading required package: BiocGenerics
+Loading required package: parallel
+
+Attaching package: ‘BiocGenerics’
+
+The following objects are masked from ‘package:parallel’:
+
+    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+    clusterExport, clusterMap, parApply, parCapply, parLapply,
+    parLapplyLB, parRapply, parSapply, parSapplyLB
+
+The following objects are masked from ‘package:stats’:
+
+    IQR, mad, sd, var, xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, append, as.data.frame, basename, cbind, colnames,
+    dirname, do.call, duplicated, eval, evalq, Filter, Find, get, grep,
+    grepl, intersect, is.unsorted, lapply, Map, mapply, match, mget,
+    order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
+    rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply,
+    union, unique, unsplit, which, which.max, which.min
+
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+
+Attaching package: ‘flowCore’
+
+The following object is masked from ‘package:BiocGenerics’:
+
+    normalize
+
+[1] "Running experiment 1"
+          used  (Mb) gc trigger  (Mb) limit (Mb) max used  (Mb)
+Ncells 2956837 158.0    5062041 270.4         NA  3808779 203.5
+Vcells 5222938  39.9   34044504 259.8    1048576 38578581 294.4
+[22/06/26 22:35:30] [INFO] Marker Names Marker1Marker2Marker3Marker4Marker5Marker6Marker7Marker8Marker9Marker10Marker11
+[22/06/26 22:35:31] [INFO] Starting flowType, replicate 1
+[1] 1656304531
+Estimated memory required: 3.696229 GB of RAM
+
+Calculating phenotype counts and MFIs.First level done. Identified phenotypes: 23
+Second level done. Identified phenotypes: 243
+Level 3 done. Identified phenotypes: 1563
+Level 4 done. Identified phenotypes: 6843
+Level 5 done. Identified phenotypes: 21627
+Level 6 done. Identified phenotypes: 51195
+Level 7 done. Identified phenotypes: 93435
+Level 8 done. Identified phenotypes: 135675
+Level 9 done. Identified phenotypes: 163835
+Level 10 done. Identified phenotypes: 175099
+Level 11 done. Identified phenotypes: 177147
+All levels done. Identified phenotypes: 177147
+[22/06/27 12:47:20] [INFO] Starting flowType, replicate 1
+[22/06/27 12:47:20] [INFO] Elapsed Time 11 markers:51109
+[22/06/27 12:47:20] [INFO] Starting flowType, replicate 2
+[1] 1656355640
+Estimated memory required: 3.696229 GB of RAM
+
+Calculating phenotype counts and MFIs.First level done. Identified phenotypes: 23
+Second level done. Identified phenotypes: 243
+Level 3 done. Identified phenotypes: 1563
+Level 4 done. Identified phenotypes: 6843

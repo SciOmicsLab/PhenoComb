@@ -1,0 +1,102 @@
+Job (8 markers) started at 08:35:07 Sun 26 Jun 2022
+Warning message:
+package ‘Rcpp’ was built under R version 4.0.5 
+[1] "8"
+[1] "Number of markers"
+[1] "Processing flowType benchmark for 8 markers"
+[22/06/26 08:35:09] [INFO] Starting flowType benchmark for8markers
+Loading required package: BiocGenerics
+Loading required package: parallel
+
+Attaching package: ‘BiocGenerics’
+
+The following objects are masked from ‘package:parallel’:
+
+    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+    clusterExport, clusterMap, parApply, parCapply, parLapply,
+    parLapplyLB, parRapply, parSapply, parSapplyLB
+
+The following objects are masked from ‘package:stats’:
+
+    IQR, mad, sd, var, xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, append, as.data.frame, basename, cbind, colnames,
+    dirname, do.call, duplicated, eval, evalq, Filter, Find, get, grep,
+    grepl, intersect, is.unsorted, lapply, Map, mapply, match, mget,
+    order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
+    rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply,
+    union, unique, unsplit, which, which.max, which.min
+
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+
+Attaching package: ‘flowCore’
+
+The following object is masked from ‘package:BiocGenerics’:
+
+    normalize
+
+[1] "Running experiment 1"
+          used  (Mb) gc trigger  (Mb) limit (Mb) max used  (Mb)
+Ncells 2956837 158.0    5062041 270.4         NA  3808779 203.5
+Vcells 5222938  39.9   27218729 207.7    1048576 30653312 233.9
+[22/06/26 08:35:17] [INFO] Marker Names Marker1Marker2Marker3Marker4Marker5Marker6Marker7Marker8
+[22/06/26 08:35:17] [INFO] Starting flowType, replicate 1
+[1] 1656254117
+Estimated memory required: 0.197745 GB of RAM
+
+Calculating phenotype counts and MFIs.First level done. Identified phenotypes: 17
+Second level done. Identified phenotypes: 129
+Level 3 done. Identified phenotypes: 577
+Level 4 done. Identified phenotypes: 1697
+Level 5 done. Identified phenotypes: 3489
+Level 6 done. Identified phenotypes: 5281
+Level 7 done. Identified phenotypes: 6305
+Level 8 done. Identified phenotypes: 6561
+All levels done. Identified phenotypes: 6561
+[22/06/26 08:58:04] [INFO] Starting flowType, replicate 1
+[22/06/26 08:58:04] [INFO] Elapsed Time 8 markers:1367
+[22/06/26 08:58:04] [INFO] Starting flowType, replicate 2
+[1] 1656255484
+Estimated memory required: 0.197745 GB of RAM
+
+Calculating phenotype counts and MFIs.First level done. Identified phenotypes: 17
+Second level done. Identified phenotypes: 129
+Level 3 done. Identified phenotypes: 577
+Level 4 done. Identified phenotypes: 1697
+Level 5 done. Identified phenotypes: 3489
+Level 6 done. Identified phenotypes: 5281
+Level 7 done. Identified phenotypes: 6305
+Level 8 done. Identified phenotypes: 6561
+All levels done. Identified phenotypes: 6561
+[22/06/26 09:20:55] [INFO] Starting flowType, replicate 2
+[22/06/26 09:20:55] [INFO] Elapsed Time 8 markers:1371
+[22/06/26 09:20:55] [INFO] Starting flowType, replicate 3
+[1] 1656256855
+Estimated memory required: 0.197745 GB of RAM
+
+Calculating phenotype counts and MFIs.First level done. Identified phenotypes: 17
+Second level done. Identified phenotypes: 129
+Level 3 done. Identified phenotypes: 577
+Level 4 done. Identified phenotypes: 1697
+Level 5 done. Identified phenotypes: 3489
+Level 6 done. Identified phenotypes: 5281
+Level 7 done. Identified phenotypes: 6305
+Level 8 done. Identified phenotypes: 6561
+All levels done. Identified phenotypes: 6561
+[22/06/26 09:43:44] [INFO] Starting flowType, replicate 3
+[22/06/26 09:43:44] [INFO] Elapsed Time 8 markers:1369
+Warning messages:
+1: In if (MemUse > MemLimit) stop(paste("Calling flowType with these parameters would require",  :
+  the condition has length > 1 and only the first element will be used
+2: In if (MemUse > MemLimit) stop(paste("Calling flowType with these parameters would require",  :
+  the condition has length > 1 and only the first element will be used
+3: In if (MemUse > MemLimit) stop(paste("Calling flowType with these parameters would require",  :
+  the condition has length > 1 and only the first element will be used
+Job (8 markers) finished at 09:43:45 Sun 26 Jun 2022
