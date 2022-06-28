@@ -487,7 +487,7 @@ plot_n_threads_experiment_runtime <- function(results){
 }
 
 
-add_point_to_figure <- function(fig,x,y,ann){
+add_point_to_figure <- function(fig,x,y,ann, color='purple'){
   
   dt <- data.frame(x = x,y = y, ann = ann)
   
@@ -500,7 +500,7 @@ add_point_to_figure <- function(fig,x,y,ann){
     color = toRGB("grey50"))
   
   fig <- fig %>% add_markers(data = dt, x = ~x, y = ~y, type = 'scatter', mode = 'markers',
-                           marker = list(color = 'purple'),
+                           marker = list(color = color),
                            showlegend = FALSE,
                            inherit = FALSE)
   
@@ -556,6 +556,8 @@ n_marker <- plot_nmarker_experiment_runtime(results)
 
 n_marker <- add_point_to_figure(n_marker,real_datasets_n_markers,real_datasets_runtimes,dataset_names)
 
+# adding flowType in orange for comparison
+n_marker <- add_point_to_figure(n_marker,  flowtype_results$markers, flowtype_results$combinatorics_runtime, "", color='orange')
 
 row1 <- subplot(
         n_phenotypes,
