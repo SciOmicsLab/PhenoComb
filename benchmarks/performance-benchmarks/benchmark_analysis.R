@@ -511,6 +511,16 @@ add_point_to_figure <- function(fig,x,y,ann, color='purple'){
   
 }
 
+read_flowtype_results <- function(results_folder,replicates){
+  
+  results <- read.csv("./flowType_experiment_results.csv")
+  # cut it off at 100 hours
+  results <- results %>% 
+    filter((results$combinatorics_runtime) <= 100)
+  
+  return(results)
+  
+}
 
 
 experiments <- read.csv("experiments.csv")
@@ -557,6 +567,7 @@ n_marker <- plot_nmarker_experiment_runtime(results)
 n_marker <- add_point_to_figure(n_marker,real_datasets_n_markers,real_datasets_runtimes,dataset_names)
 
 # adding flowType in orange for comparison
+flowtype_results <- read_flowtype_results()
 n_marker <- add_point_to_figure(n_marker,  flowtype_results$markers, flowtype_results$combinatorics_runtime, "", color='orange')
 
 row1 <- subplot(
