@@ -6,7 +6,6 @@ library(plotly)
 library(dplyr)
 
 
-
 get_run_time <- function(file_path, type = "full"){
   
   txt <- readLines(file_path)
@@ -514,9 +513,12 @@ add_point_to_figure <- function(fig,x,y,ann, color='purple'){
 read_flowtype_results <- function(results_folder,replicates){
   
   results <- read.csv("./flowType_experiment_results.csv")
-  # cut it off at 100 hours
+  # cut it off at (about) 100 hours
   results <- results %>% 
-    filter((results$combinatorics_runtime) <= 100)
+    mutate (flowType_runtime = (results$combinatorics_runtime / 3600 )) 
+  
+  results <- results %>% 
+    filter(results$flowType_runtime <= 110)
   
   return(results)
   
@@ -568,7 +570,7 @@ n_marker <- add_point_to_figure(n_marker,real_datasets_n_markers,real_datasets_r
 
 # adding flowType in orange for comparison
 flowtype_results <- read_flowtype_results()
-n_marker <- add_point_to_figure(n_marker,  flowtype_results$markers, flowtype_results$combinatorics_runtime, "", color='orange')
+n_marker <- add_point_to_figure(n_marker,  flowtype_results$markers, flowtype_results$flowType_runtime, "", color='orange')
 
 row1 <- subplot(
         n_phenotypes,
@@ -593,3 +595,4 @@ row2 <- subplot(
 subplot(row1,row2,nrows = 2,margin = 0.08, titleX = TRUE, titleY = TRUE)
 
 save_image(subplot(row1,row2,nrows = 2,margin = 0.08, titleX = TRUE, titleY = TRUE), "benchmark.pdf",width = 800, height = 500)
+
