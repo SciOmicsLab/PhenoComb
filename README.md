@@ -1,5 +1,7 @@
 # PhenoComb
 
+Burke PEP, Strange A, Monk E, Thompson B, Amato CM, Woods DM. PhenoComb: a discovery tool to assess complex phenotypes in high-dimensional single-cell datasets. Bioinform Adv. 2022 Aug 3;2(1):vbac052. doi: 10.1093/bioadv/vbac052. PMID: 36699375; PMCID: PMC9710698.
+
 An R package for combinatorial analysis of phenotypes.
 
 ## Installing PhenoComb
